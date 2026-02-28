@@ -27,6 +27,7 @@ class GenerationService(
         try {
             response = aiTaskGenerationService.getTaskResult(task)
         } catch (e: Exception) {
+            futureStorageService.remove(taskId)
             return ResponseGetTaskStatus(TaskStatus.FAILED, null)
         }
 
@@ -34,7 +35,10 @@ class GenerationService(
         return when (response) {
             null -> ResponseGetTaskStatus(TaskStatus.ACTIVE, null)
 
-            else -> ResponseGetTaskStatus(TaskStatus.COMPLETE, response)
+            else -> {
+                futureStorageService.remove(taskId)
+                ResponseGetTaskStatus(TaskStatus.COMPLETE, response)
+            }
         }
     }
 }
