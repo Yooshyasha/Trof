@@ -12,9 +12,9 @@ import java.util.*
 
 @FeignClient(name = "aiServiceClient", url = "http://localhost:8080")
 interface AiServiceFeignClient {
-    @PostMapping("/")
+    @PostMapping("/v1/api/generation/")
     fun generate(@RequestBody request: GenerateRequest): ResponsePostGenerate
 
-    @GetMapping("/{taskId}")
+    @GetMapping("/v1/api/generation/{taskId}")
     fun getTask(@PathVariable taskId: UUID): ResponseGetTaskStatus
 }

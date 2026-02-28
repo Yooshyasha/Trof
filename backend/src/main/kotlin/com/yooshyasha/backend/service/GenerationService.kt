@@ -1,5 +1,7 @@
 package com.yooshyasha.backend.service
 
+import com.yooshyasha.backend.dto.controller.RequestConfirmTasks
+import com.yooshyasha.backend.dto.controller.ResponseConfirm
 import com.yooshyasha.backend.exceptions.GeneratedTasksNotFound
 import com.yooshyasha.backend.feign.AiServiceFeignClient
 import com.yooshyasha.backend.storage.GeneratedTasksStorage
@@ -44,5 +46,11 @@ class GenerationService(
         } catch (e: Exception) {
             throw ApiException("Unexpected error", 500)
         }
+    }
+
+    fun confirm(taskId: UUID, data: RequestConfirmTasks): ResponseConfirm {
+        generatedTasksStorage.update(taskId, data)
+        val creationData = generatedTasksStorage.getTasks(taskId)
+        TODO()
     }
 }
