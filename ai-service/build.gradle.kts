@@ -53,6 +53,8 @@ dependencies {
     implementation("ai.koog:koog-spring-boot-starter:$koogVersion")
     implementation("io.ktor:ktor-client-okhttp-jvm:$ktorVersion")
 
+    implementation("org.apache.httpcomponents.client5:httpclient5")
+
     implementation(kotlin("stdlib"))
 
     implementation(project(":shared"))
