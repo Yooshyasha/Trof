@@ -1,10 +1,9 @@
 package com.yooshyasha.aiservice.config
 
+import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
 import ai.koog.prompt.executor.clients.openai.OpenAIModels
 import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
 import ai.koog.prompt.executor.ollama.client.OllamaClient
-import ai.koog.prompt.llm.LLMCapability
-import ai.koog.prompt.llm.LLMProvider
 import ai.koog.prompt.llm.LLModel
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Qualifier
@@ -16,6 +15,7 @@ import org.springframework.core.io.ResourceLoader
 @Configuration
 class AIAgentConfig(
     @Qualifier("openAIExecutor") private val openaiAIExecutor: SingleLLMPromptExecutor?,
+    @Value("\${ai.koog.openai.api-key}") private val openaiApiKey: String?,
     @Qualifier("anthropicExecutor") private val anthropicAIExecutor: SingleLLMPromptExecutor?,
     @Qualifier("googleExecutor") private val googleAIExecutor: SingleLLMPromptExecutor?,
     @Qualifier("ollamaExecutor") private val ollamaAIExecutor: SingleLLMPromptExecutor?,
@@ -28,7 +28,7 @@ class AIAgentConfig(
     @Bean
     fun aiExecutor(): SingleLLMPromptExecutor {
         return when {
-            openaiAIExecutor != null -> openaiAIExecutor
+            openaiAIExecutor != null -> SingleLLMPromptExecutor(llmClient = OpenAILLMClient(apiKey = openaiApiKey!!))
             anthropicAIExecutor != null -> anthropicAIExecutor
             googleAIExecutor != null -> googleAIExecutor
             ollamaAIExecutor != null -> SingleLLMPromptExecutor(llmClient = OllamaClient(baseUrl = ollamaBaseUrl!!))
