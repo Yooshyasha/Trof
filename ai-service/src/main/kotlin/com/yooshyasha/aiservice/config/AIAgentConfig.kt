@@ -1,5 +1,6 @@
 package com.yooshyasha.aiservice.config
 
+import ai.koog.prompt.executor.clients.anthropic.AnthropicModels
 import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
 import ai.koog.prompt.executor.clients.openai.OpenAIModels
 import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
@@ -54,7 +55,7 @@ class AIAgentConfig(
 //            capabilities = listOf(LLMCapability.Temperature, LLMCapability.Completion),
 //            contextLength = 32_000,
 //        )
-        return OpenAIModels.Chat.GPT4_1
+        return AnthropicModels.Sonnet_4_5
     }
 
     @Bean
