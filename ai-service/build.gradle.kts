@@ -53,8 +53,8 @@ dependencies {
     implementation("ai.koog:koog-spring-boot-starter:$koogVersion")
     implementation("io.ktor:ktor-client-okhttp-jvm:$ktorVersion")
 
-    // Source: https://mvnrepository.com/artifact/io.ktor/ktor-client-apache5-jvm
-    implementation("io.ktor:ktor-client-apache5-jvm:3.4.0")
+    // Source: https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.6")
 
     implementation(kotlin("stdlib"))
 
