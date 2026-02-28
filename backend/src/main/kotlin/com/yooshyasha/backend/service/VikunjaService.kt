@@ -24,4 +24,9 @@ class VikunjaService(
         )
         return vikunjaClient.createTask(config.vikunjaAuthorization(), request)
     }
+
+    fun addCommentToTask(taskId: Int, text: String): TaskCommentResponse {
+        val request = TaskCommentRequest(comment = text)
+        return vikunjaClient.createTaskComment(config.vikunjaAuthorization(), taskId, request)
+    }
 }

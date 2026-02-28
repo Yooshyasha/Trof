@@ -56,16 +56,27 @@ class GenerationService(
         generatedTasksStorage.update(taskId, data)
         val creationData = generatedTasksStorage.getTasks(taskId)
 
+        var success = true
+
         val project = vikunjaService.createProject(creationData.projectName)
-        val tasks = creationData.tasks.onEach { task ->
+        creationData.tasks.onEach { task ->
             try {
-                vikunjaService.createTask(project.id, task.name, task.description, task.tags)
-                // TODO comments
+                val apiTask = vikunjaService.createTask(project.id, task.name, task.description, task.tags)
+                task.comments?.onEach { comment ->
+                    try {
+                        vikunjaService.addCommentToTask(apiTask.id, comment)
+                    } catch (e: Exception) {
+                        logger.error("Error send comment ($comment) to task (${apiTask.id})", e)
+                        success = false
+                    }
+                }
             } catch (e: Exception) {
                 logger.error("Error processing send task ($task)", e)
+                success = false
             }
         }
+
         generatedTasksStorage.remove(taskId)
-        return ResponseConfirm(true, creationData)
+        return ResponseConfirm(success, creationData)
     }
 }
