@@ -22,7 +22,7 @@ repositories {
 }
 
 val koogVersion = "0.6.3"
-val ktorVersion = "3.0.3"
+val ktorVersion = "3.4.0"
 
 configurations.all {
     resolutionStrategy.eachDependency {
