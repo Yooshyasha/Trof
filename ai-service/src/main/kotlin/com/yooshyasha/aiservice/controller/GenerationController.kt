@@ -12,7 +12,7 @@ import java.util.*
 class GenerationController(
     private val generationService: GenerationService,
 ) {
-    @PostMapping("/")
+    @PostMapping
     fun generate(@RequestBody data: GenerateRequest): ResponsePostGenerate {
         return generationService.generate(data.text)
     }

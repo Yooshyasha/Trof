@@ -12,7 +12,7 @@ import java.util.*
 
 @FeignClient(name = "aiServiceClient", url = "http://localhost:8080")
 interface AiServiceFeignClient {
-    @PostMapping("/v1/api/generation/")
+    @PostMapping("/v1/api/generation")
     fun generate(@RequestBody request: GenerateRequest): ResponsePostGenerate
 
     @GetMapping("/v1/api/generation/{taskId}")
