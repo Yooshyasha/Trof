@@ -1,4 +1,4 @@
-package com.yooshyasha.aiservice.ai.base
+package com.yooshyasha.aiservice.ai
 
 import ai.koog.agents.core.agent.AIAgent
 import ai.koog.agents.core.agent.config.AIAgentConfig
@@ -7,6 +7,7 @@ import ai.koog.agents.core.tools.ToolRegistry
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
 import ai.koog.prompt.llm.LLModel
+import com.yooshyasha.aiservice.ai.base.BaseAgentProvider
 import dto.GeneratedTasksResponse
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
