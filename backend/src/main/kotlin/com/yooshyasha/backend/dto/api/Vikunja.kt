@@ -38,3 +38,14 @@ data class TaskResponse(
     val project_id: Int,
     val done: Boolean
 )
+
+data class TaskCommentRequest(
+    val comment: String
+)
+
+data class TaskCommentResponse(
+    val id: Int,
+    val comment: String,
+    val created: String,
+    val updated: String
+)
