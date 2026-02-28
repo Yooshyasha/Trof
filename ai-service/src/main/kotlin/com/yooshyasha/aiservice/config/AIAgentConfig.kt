@@ -56,7 +56,7 @@ class AIAgentConfig(
 //            capabilities = listOf(LLMCapability.Temperature, LLMCapability.Completion),
 //            contextLength = 32_000,
 //        )
-        return OpenAIModels.Chat.GPT5
+        return OpenAIModels.Chat.GPT4_1
     }
 
     @Bean
