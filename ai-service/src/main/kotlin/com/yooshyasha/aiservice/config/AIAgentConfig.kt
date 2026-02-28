@@ -14,24 +14,22 @@ import org.springframework.core.io.ResourceLoader
 
 @Configuration
 class AIAgentConfig(
-    @Qualifier("openAIExecutor") private val openaiAIExecutor: SingleLLMPromptExecutor?,
-    @Value("\${ai.koog.openai.api-key}") private val openaiApiKey: String?,
-    @Qualifier("anthropicExecutor") private val anthropicAIExecutor: SingleLLMPromptExecutor?,
-    @Qualifier("googleExecutor") private val googleAIExecutor: SingleLLMPromptExecutor?,
-    @Qualifier("ollamaExecutor") private val ollamaAIExecutor: SingleLLMPromptExecutor?,
-    @Value("\${ai.koog.ollama.base-url}") private val ollamaBaseUrl: String?,
-    @Qualifier("openRouterExecutor") private val openRouterAIExecutor: SingleLLMPromptExecutor?,
-    @Qualifier("deepSeekExecutor") private val deepSeekAIExecutor: SingleLLMPromptExecutor?,
-    @Value("\${ai.model.id}") private val aiModelId: String,
+    @param:Qualifier("openAIExecutor") private val openaiAIExecutor: SingleLLMPromptExecutor?,
+    @param:Qualifier("anthropicExecutor") private val anthropicAIExecutor: SingleLLMPromptExecutor?,
+    @param:Qualifier("googleExecutor") private val googleAIExecutor: SingleLLMPromptExecutor?,
+    @param:Qualifier("ollamaExecutor") private val ollamaAIExecutor: SingleLLMPromptExecutor?,
+    @param:Qualifier("openRouterExecutor") private val openRouterAIExecutor: SingleLLMPromptExecutor?,
+    @param:Qualifier("deepSeekExecutor") private val deepSeekAIExecutor: SingleLLMPromptExecutor?,
+    @param:Value($$"${ai.model.id}") private val aiModelId: String,
     private val resourceLoader: ResourceLoader,
 ) {
     @Bean
     fun aiExecutor(): SingleLLMPromptExecutor {
         return when {
-            openaiAIExecutor != null -> SingleLLMPromptExecutor(llmClient = OpenAILLMClient(apiKey = openaiApiKey!!))
+            openaiAIExecutor != null -> openaiAIExecutor
             anthropicAIExecutor != null -> anthropicAIExecutor
             googleAIExecutor != null -> googleAIExecutor
-            ollamaAIExecutor != null -> SingleLLMPromptExecutor(llmClient = OllamaClient(baseUrl = ollamaBaseUrl!!))
+            ollamaAIExecutor != null -> ollamaAIExecutor
             openRouterAIExecutor != null -> openRouterAIExecutor
             deepSeekAIExecutor != null -> deepSeekAIExecutor
             else -> throw BeanCreationException("Zero available executors")
