@@ -5,7 +5,6 @@ import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.llm.LLMCapability
 import ai.koog.prompt.llm.LLMProvider
 import ai.koog.prompt.llm.LLModel
-import ai.koog.prompt.llm.OllamaModels
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -49,8 +48,6 @@ class AIAgentConfig(
             deepSeekAIExecutor != null -> LLMProvider.DeepSeek
             else -> throw BeanCreationException("Zero available executors")
         }
-
-        OllamaModels
 
         return LLModel(
             provider = provider,
