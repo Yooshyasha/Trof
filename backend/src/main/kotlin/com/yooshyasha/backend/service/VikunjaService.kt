@@ -15,11 +15,10 @@ class VikunjaService(
         return vikunjaClient.createProject(config.vikunjaAuthorization(), request)
     }
 
-    fun createTask(projectId: Int, title: String, description: String, labels: List<String>): TaskResponse {
+    fun createTask(projectId: Int, title: String, description: String): TaskResponse {
         val request = TaskRequest(
             title = title,
             description = description,
-            labels = labels.map { TaskLabel(it) }
         )
         return vikunjaClient.createTask(config.vikunjaAuthorization(), request, projectId)
     }

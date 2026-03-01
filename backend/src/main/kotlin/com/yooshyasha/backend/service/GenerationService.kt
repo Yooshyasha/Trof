@@ -73,7 +73,7 @@ class GenerationService(
         val project = vikunjaService.createProject(creationData.projectName)
         creationData.tasks.onEach { task ->
             try {
-                val apiTask = vikunjaService.createTask(project.id, task.name, task.description, task.tags)
+                val apiTask = vikunjaService.createTask(project.id, task.name, task.description)
                 task.comments?.onEach { comment ->
                     try {
                         vikunjaService.addCommentToTask(apiTask.id, comment)

@@ -26,7 +26,6 @@ data class TaskLabel(
 data class TaskRequest(
     val title: String,
     val description: String? = null,
-    val labels: List<TaskLabel>? = null
 )
 
 data class TaskResponse(
