@@ -88,7 +88,7 @@ class TaskManagerAgentProvider(
                     system(systemPrompt)
                 },
                 model = llModel,
-                maxAgentIterations = 5,
+                maxAgentIterations = 6,
             ),
             toolRegistry = ToolRegistry.EMPTY,
         )
