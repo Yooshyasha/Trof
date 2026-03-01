@@ -5,6 +5,7 @@ import ai.koog.prompt.executor.clients.openai.OpenAIModels
 import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
 import ai.koog.prompt.llm.LLModel
 import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
@@ -30,7 +31,13 @@ class AIAgentConfig(
             openaiAIExecutor != null -> SingleLLMPromptExecutor(
                 OpenAILLMClient(
                     apiKey = openaiApiKey,
-                    baseClient = HttpClient(),
+                    baseClient = HttpClient(OkHttp) {
+                        engine {
+                            config {
+                                followRedirects(true)
+                            }
+                        }
+                    },
                 )
             )
 //            anthropicAIExecutor != null -> anthropicAIExecutor
