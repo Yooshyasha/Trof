@@ -84,7 +84,7 @@ class TaskManagerAgentProvider(
             promptExecutor = aiExecutor,
             strategy = strategy,
             agentConfig = AIAgentConfig(
-                prompt = prompt("task manager agent prompt", params = LLMParams(maxTokens = 128_000)) {
+                prompt = prompt("task manager agent prompt", params = LLMParams(maxTokens = 64_000)) {
                     system(systemPrompt)
                 },
                 model = llModel,
