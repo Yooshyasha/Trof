@@ -6,6 +6,7 @@ import com.yooshyasha.backend.exceptions.GeneratedTasksNotFound
 import com.yooshyasha.backend.feign.AiServiceFeignClient
 import com.yooshyasha.backend.storage.GeneratedTasksStorage
 import dto.GenerateRequest
+import dto.GeneratedTasksResponse
 import dto.ResponseGetTaskStatus
 import dto.ResponsePostGenerate
 import enum.TaskStatus
@@ -41,7 +42,18 @@ class GenerationService(
                 val result = generatedTasksStorage.getTasks(taskId)
                 ResponseGetTaskStatus(TaskStatus.COMPLETE, result)
             } catch (e: GeneratedTasksNotFound) {
-                aiServiceFeignClient.getTask(taskId)
+                aiServiceFeignClient.getTask(taskId).let { response ->
+                    if (response.status == TaskStatus.COMPLETE) {
+                        generatedTasksStorage.save(
+                            taskId,
+                            GeneratedTasksResponse(
+                                response.generatedTasks!!.tasks,
+                                response.generatedTasks!!.projectName
+                            )
+                        )
+                    }
+                    return response
+                }
             }
         } catch (e: feign.FeignException.NotFound) {
             throw TaskNotFound()
