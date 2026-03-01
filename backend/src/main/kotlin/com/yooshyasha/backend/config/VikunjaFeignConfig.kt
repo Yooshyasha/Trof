@@ -1,8 +1,8 @@
 package com.yooshyasha.backend.config
 
 import feign.Client
-import feign.
 import feign.RequestInterceptor
+import feign.okhttp.OkHttpClient
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
 import java.security.SecureRandom
@@ -42,7 +42,8 @@ class VikunjaFeignConfig(
                 trustAllCerts[0] as X509TrustManager
             )
             .hostnameVerifier { _, _ -> true }
+            .build()
 
-        return
+        return OkHttpClient(okHttpClient)
     }
 }
