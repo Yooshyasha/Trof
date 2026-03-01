@@ -1,7 +1,8 @@
 package com.yooshyasha.aiservice.config
 
+import ai.koog.prompt.executor.clients.anthropic.AnthropicLLMClient
+import ai.koog.prompt.executor.clients.anthropic.AnthropicModels
 import ai.koog.prompt.executor.clients.openai.OpenAILLMClient
-import ai.koog.prompt.executor.clients.openai.OpenAIModels
 import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
 import ai.koog.prompt.llm.LLModel
 import io.ktor.client.*
@@ -16,8 +17,9 @@ import org.springframework.core.io.ResourceLoader
 @Configuration
 class AIAgentConfig(
     @param:Qualifier("openAIExecutor") private val openaiAIExecutor: SingleLLMPromptExecutor?,
-    @param:Value($$"${ai.koog.openai.api-key}") private val openaiApiKey: String,
-//    @param:Qualifier("anthropicExecutor") private val anthropicAIExecutor: SingleLLMPromptExecutor?,
+    @param:Value($$"${ai.koog.openai.api-key:}") private val openaiApiKey: String?,
+    @param:Qualifier("anthropicExecutor") private val anthropicAIExecutor: SingleLLMPromptExecutor?,
+    @param:Value($$"${ai.koog.anthropic.api-key:}") private val anthropicApiKey: String?,
 //    @param:Qualifier("googleExecutor") private val googleAIExecutor: SingleLLMPromptExecutor?,
 //    @param:Qualifier("ollamaExecutor") private val ollamaAIExecutor: SingleLLMPromptExecutor?,
 //    @param:Qualifier("openRouterExecutor") private val openRouterAIExecutor: SingleLLMPromptExecutor?,
@@ -27,20 +29,28 @@ class AIAgentConfig(
 ) {
     @Bean
     fun aiExecutor(): SingleLLMPromptExecutor {
+        val baseClient = HttpClient(OkHttp) {
+            engine {
+                config {
+                    followRedirects(true)
+                }
+            }
+        }
+
         return when {
             openaiAIExecutor != null -> SingleLLMPromptExecutor(
                 OpenAILLMClient(
-                    apiKey = openaiApiKey,
-                    baseClient = HttpClient(OkHttp) {
-                        engine {
-                            config {
-                                followRedirects(true)
-                            }
-                        }
-                    },
+                    apiKey = openaiApiKey!!,
+                    baseClient = baseClient,
                 )
             )
-//            anthropicAIExecutor != null -> anthropicAIExecutor
+
+            anthropicAIExecutor != null -> SingleLLMPromptExecutor(
+                AnthropicLLMClient(
+                    apiKey = anthropicApiKey!!,
+                    baseClient = baseClient,
+                )
+            )
 //            googleAIExecutor != null -> googleAIExecutor
 //            ollamaAIExecutor != null -> ollamaAIExecutor
 //            openRouterAIExecutor != null -> openRouterAIExecutor
@@ -67,7 +77,7 @@ class AIAgentConfig(
 //            capabilities = listOf(LLMCapability.Temperature, LLMCapability.Completion),
 //            contextLength = 32_000,
 //        )
-        return OpenAIModels.Chat.GPT4_1
+        return AnthropicModels.Sonnet_4_5
     }
 
     @Bean
