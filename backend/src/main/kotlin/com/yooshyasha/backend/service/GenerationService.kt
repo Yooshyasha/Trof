@@ -88,6 +88,7 @@ class GenerationService(
                         vikunjaService.addLabelToTask(apiTask.id, label.id)
                     } catch (e: Exception) {
                         logger.error("Error add label ($tag) to task (${apiTask.id})", e)
+                        success = false
                     }
                 }
             } catch (e: Exception) {
