@@ -8,4 +8,5 @@ data class TaskDTO(
     val description: String,
     val comments: List<String>?,
     val tags: List<String>,
+    val vikunjaTaskId: Int?,
 )
