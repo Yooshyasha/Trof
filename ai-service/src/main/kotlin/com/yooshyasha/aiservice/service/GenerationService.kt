@@ -1,9 +1,9 @@
 package com.yooshyasha.aiservice.service
 
-import dto.ResponsePostGenerate
 import com.yooshyasha.aiservice.storage.FutureStorage
 import dto.GeneratedTasksResponse
 import dto.ResponseGetTaskStatus
+import dto.ResponsePostGenerate
 import dto.project.VikunjaProjectDTO
 import enum.TaskStatus
 import kotlinx.coroutines.Deferred
@@ -15,9 +15,22 @@ class GenerationService(
     private val aiTaskGenerationService: AITaskGenerationService,
     private val futureStorage: FutureStorage,
 ) {
+    private fun vikunjaTasksToString(vikunjaProject: VikunjaProjectDTO): String {
+        var result = "\n\nEDIT PROJECT. TASKS:"
+
+        vikunjaProject.tasks.onEach { task ->
+            result += "\n${task.id}. ${task.name} (${task.status}): ${task.description}"
+        }
+
+        return result
+    }
+
     fun generate(text: String, vikunjaProject: VikunjaProjectDTO?): ResponsePostGenerate {
+        var llmRequest = text
+        vikunjaProject?.let { llmRequest += vikunjaTasksToString(vikunjaProject) }
+
         val taskId = UUID.randomUUID()
-        val task = aiTaskGenerationService.generation(text)
+        val task = aiTaskGenerationService.generation(llmRequest)
         futureStorage.save(taskId, task)
 
         return ResponsePostGenerate(taskId)
