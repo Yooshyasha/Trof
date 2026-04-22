@@ -4,6 +4,7 @@ import com.yooshyasha.backend.config.VikunjaFeignConfig
 import com.yooshyasha.backend.dto.api.*
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -47,4 +48,21 @@ interface VikunjaClient {
         @PathVariable taskId: Int,
         @RequestBody request: AddLabelRequest,
     ): AddLabelResponse
+
+    @GetMapping("/projects")
+    fun getProjects(
+        @RequestHeader("Authorization") auth: String,
+    ): List<ProjectResponse>
+
+    @GetMapping("/projects/{projectId}/tasks")
+    fun getProjectTasks(
+        @RequestHeader("Authorization") auth: String,
+        @PathVariable projectId: Int,
+    ): List<TaskResponse>
+
+    @GetMapping("/projects/{projectId}/buckets")
+    fun getProjectBuckets(
+        @RequestHeader("Authorization") auth: String,
+        @PathVariable projectId: Int,
+    ): List<BucketResponse>
 }

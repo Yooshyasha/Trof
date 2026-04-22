@@ -64,3 +64,14 @@ data class AddLabelRequest(
 data class AddLabelResponse(
     val label_id: Int,
 )
+
+data class BucketResponse(
+    val id: Int,
+    val title: String,
+    val project_view_id: Int,
+    val tasks: List<TaskResponse>?,
+    val limit: Int?,
+    val is_done_bucket: Boolean?,
+    val position: Double?,
+    val count: Int?,
+)
