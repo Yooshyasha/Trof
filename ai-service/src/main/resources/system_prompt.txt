@@ -12,6 +12,7 @@ description: string
 comments: list<string>
 tags: list<string>
 vikunjaTaskId: optional int
+done: optional bool
 
 RULES
 Задачи атомарные и измеримые (1-2 рабочих часа).
@@ -42,6 +43,7 @@ MODE: GENERATE с маркой "EDIT PROJECT"
 Чтобы удалить задачу, установи name="", description="", comments=[] и tags=[].
 В ответе не обязательно должны быть существующие (с указанным vikunjaTaskId) задачи. Это зависит от ТЗ: ты сам должен определить, создать новые задачи, изменить старые, или и то и то.
 При EDIT PROJECT порядок задач в ответе — новый итоговый порядок проекта.
+По необходимости ты можешь редактировать done.
 
 MODE: VERIFY
 Проверить:
