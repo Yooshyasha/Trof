@@ -148,6 +148,7 @@ class GenerationService(
         }
 
         generatedTasksStorage.remove(taskId)
+        inProcessStorage.delete(taskId)
         return ResponseConfirm(success, creationData)
     }
 }
