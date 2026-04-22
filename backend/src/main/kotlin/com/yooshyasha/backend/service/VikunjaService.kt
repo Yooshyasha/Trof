@@ -4,6 +4,7 @@ import com.yooshyasha.backend.config.VikunjaConfig
 import com.yooshyasha.backend.dto.api.*
 import com.yooshyasha.backend.exceptions.ProjectNotFound
 import com.yooshyasha.backend.feign.VikunjaClient
+import dto.TaskDTO
 import dto.project.VikunjaProjectDTO
 import dto.project.VikunjaTaskDTO
 import enum.project.VikunjaTaskStatus
@@ -77,15 +78,9 @@ class VikunjaService(
         }
     }
 
-    fun updateTask(taskId: Int, task: VikunjaTaskDTO): TaskResponse {
-        val done = when (task.status) {
-            VikunjaTaskStatus.COMPLETE -> true
-            VikunjaTaskStatus.TODO -> false
-            VikunjaTaskStatus.DOING -> false
-        }
-
+    fun updateTask(taskId: Int, task: TaskDTO): TaskResponse {
         val request = TaskUpdateRequest(
-            title = task.name, description = task.description, done = done
+            title = task.name, description = task.description, done = task.done,
         )
 
         return vikunjaClient.updateTask(config.vikunjaAuthorization(), taskId, request)

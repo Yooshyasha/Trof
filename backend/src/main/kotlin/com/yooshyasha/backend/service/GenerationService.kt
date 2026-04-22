@@ -14,6 +14,7 @@ import dto.GeneratedTasksResponse
 import dto.ResponseGetTaskStatus
 import dto.ResponsePostGenerate
 import dto.project.VikunjaTaskDTO
+import enum.TaskControl
 import enum.TaskStatus
 import exceptions.ApiException
 import exceptions.TaskNotFound
@@ -100,28 +101,49 @@ class GenerationService(
 
         val project = vikunjaService.createProject(creationData.projectName)
         creationData.tasks.onEach { task ->
-            try {
-                val apiTask = vikunjaService.createTask(project.id, task.name, task.description)
-                task.comments?.onEach { comment ->
+            when (task.control) {
+                TaskControl.DELETE -> {
                     try {
-                        vikunjaService.addCommentToTask(apiTask.id, comment)
+                        vikunjaService.deleteTask(task.vikunjaTaskId!!)
                     } catch (e: Exception) {
-                        logger.error("Error send comment ($comment) to task (${apiTask.id})", e)
+                        logger.error("Error delete task (${task.vikunjaTaskId})", e)
                         success = false
                     }
                 }
-                task.tags.onEach { tag ->
+
+                TaskControl.EDIT -> {
                     try {
-                        val label = vikunjaService.createLabel(tag)
-                        vikunjaService.addLabelToTask(apiTask.id, label.id)
+                        vikunjaService.updateTask(task.vikunjaTaskId!!, task)
                     } catch (e: Exception) {
-                        logger.error("Error add label ($tag) to task (${apiTask.id})", e)
+                        logger.error("Error edit task (${task.vikunjaTaskId})", e)
+                    }
+                }
+
+                TaskControl.CREATE -> {
+                    try {
+                        val apiTask = vikunjaService.createTask(project.id, task.name, task.description)
+                        task.comments?.onEach { comment ->
+                            try {
+                                vikunjaService.addCommentToTask(apiTask.id, comment)
+                            } catch (e: Exception) {
+                                logger.error("Error send comment ($comment) to task (${apiTask.id})", e)
+                                success = false
+                            }
+                        }
+                        task.tags.onEach { tag ->
+                            try {
+                                val label = vikunjaService.createLabel(tag)
+                                vikunjaService.addLabelToTask(apiTask.id, label.id)
+                            } catch (e: Exception) {
+                                logger.error("Error add label ($tag) to task (${apiTask.id})", e)
+                                success = false
+                            }
+                        }
+                    } catch (e: Exception) {
+                        logger.error("Error processing send task ($task)", e)
                         success = false
                     }
                 }
-            } catch (e: Exception) {
-                logger.error("Error processing send task ($task)", e)
-                success = false
             }
         }
 

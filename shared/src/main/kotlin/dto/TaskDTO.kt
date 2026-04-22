@@ -10,6 +10,7 @@ data class TaskDTO(
     val comments: List<String>?,
     val tags: List<String>,
     val vikunjaTaskId: Int?,
+    val done: Boolean,
 ) {
     val control: TaskControl
         get() {
