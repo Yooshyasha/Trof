@@ -71,11 +71,12 @@ class VikunjaService(
     }
 
     fun getProject(projectId: Int): VikunjaProjectDTO {
-        try {
-            return getProjects().first { it.id == projectId }
-        } catch (e: NoSuchElementException) {
+        val project = try {
+            vikunjaClient.getProject(projectId)
+        } catch (e: feign.FeignException.NotFound) {
             throw ProjectNotFound()
         }
+        return VikunjaProjectDTO(project.id, project.title, tasks = getProjectTasks(project.id))
     }
 
     fun updateTask(taskId: Int, task: TaskDTO): TaskResponse {

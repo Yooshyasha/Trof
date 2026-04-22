@@ -49,6 +49,9 @@ interface VikunjaClient {
     @GetMapping("/projects")
     fun getProjects(): List<ProjectResponse>
 
+    @GetMapping("/projects/{projectId}")
+    fun getProject(@PathVariable projectId: Int): ProjectResponse
+
     @GetMapping("/projects/{projectId}/tasks")
     fun getProjectTasks(
         @PathVariable projectId: Int,
