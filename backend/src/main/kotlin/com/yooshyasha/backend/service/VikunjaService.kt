@@ -67,4 +67,18 @@ class VikunjaService(
             )
         }
     }
+
+    fun updateTask(taskId: Int, task: VikunjaTaskDTO): TaskResponse {
+        val done = when (task.status) {
+            VikunjaTaskStatus.COMPLETE -> true
+            VikunjaTaskStatus.TODO -> false
+            VikunjaTaskStatus.DOING -> false
+        }
+
+        val request = TaskUpdateRequest(
+            title = task.name, description = task.description, done = done
+        )
+
+        return vikunjaClient.updateTask(config.vikunjaAuthorization(), taskId, request)
+    }
 }
