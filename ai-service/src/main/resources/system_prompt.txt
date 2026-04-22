@@ -56,5 +56,5 @@ MODE: VERIFY
 Вернуть:
 status: OK | FAIL
 issues: list<string>
-refinementInstruction: string
+refinementInstruction: optional string
 Если есть сомнения - FAIL.
