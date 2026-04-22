@@ -59,36 +59,34 @@ class GenerationService(
 
     fun getTask(taskId: UUID): ResponseGenerate {
         return try {
-            return try {
-                val result = generatedTasksStorage.getTasks(taskId)
-                val inProcessDTO = inProcessStorage.get(taskId) ?: throw TaskNotFound()
+            val result = generatedTasksStorage.getTasks(taskId)
+            val inProcessDTO = inProcessStorage.get(taskId) ?: throw TaskNotFound()
 
-                ResponseGenerate(
-                    ResponseGetTaskStatus(TaskStatus.COMPLETE, result),
-                    inProcessDTO.tasks,
-                    inProcessDTO.projectId,
-                )
-            } catch (_: GeneratedTasksNotFound) {
-                aiServiceFeignClient.getTask(taskId).let { response ->
-                    if (response.status == TaskStatus.COMPLETE) {
-                        generatedTasksStorage.save(
-                            taskId,
-                            GeneratedTasksResponse(
-                                response.generatedTasks!!.tasks,
-                                response.generatedTasks!!.projectName
-                            )
-                        )
-                    }
-                    val inProcessDTO = inProcessStorage.get(taskId) ?: throw TaskNotFound()
-
-                    ResponseGenerate(response, inProcessDTO.tasks, inProcessDTO.projectId)
-                }
-            }
+            ResponseGenerate(
+                ResponseGetTaskStatus(TaskStatus.COMPLETE, result),
+                inProcessDTO.tasks,
+                inProcessDTO.projectId,
+            )
         } catch (_: feign.FeignException.NotFound) {
             throw TaskNotFound()
         } catch (_: feign.FeignException) {
             val response = ResponseGetTaskStatus(TaskStatus.FAILED, null)
             ResponseGenerate(response, null, null)
+        } catch (_: GeneratedTasksNotFound) {
+            aiServiceFeignClient.getTask(taskId).let { response ->
+                if (response.status == TaskStatus.COMPLETE) {
+                    generatedTasksStorage.save(
+                        taskId,
+                        GeneratedTasksResponse(
+                            response.generatedTasks!!.tasks,
+                            response.generatedTasks!!.projectName
+                        )
+                    )
+                }
+                val inProcessDTO = inProcessStorage.get(taskId) ?: throw TaskNotFound()
+
+                ResponseGenerate(response, inProcessDTO.tasks, inProcessDTO.projectId)
+            }
         } catch (_: Exception) {
             throw ApiException("Unexpected error", 500)
         }
