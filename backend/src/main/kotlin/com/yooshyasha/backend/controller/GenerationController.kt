@@ -3,9 +3,8 @@ package com.yooshyasha.backend.controller
 import com.yooshyasha.backend.dto.controller.RequestConfirmTasks
 import com.yooshyasha.backend.dto.controller.RequestStartGenerate
 import com.yooshyasha.backend.dto.controller.ResponseConfirm
+import com.yooshyasha.backend.dto.controller.ResponseGenerate
 import com.yooshyasha.backend.service.GenerationService
-import dto.GenerateRequest
-import dto.ResponseGetTaskStatus
 import dto.ResponsePostGenerate
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -21,7 +20,7 @@ class GenerationController(
     }
 
     @GetMapping("/{taskId}")
-    fun getTask(@PathVariable taskId: UUID): ResponseGetTaskStatus {
+    fun getTask(@PathVariable taskId: UUID): ResponseGenerate {
         return generationService.getTask(taskId)
     }
 

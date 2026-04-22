@@ -3,6 +3,7 @@ package com.yooshyasha.backend.service
 import com.yooshyasha.backend.dto.controller.RequestConfirmTasks
 import com.yooshyasha.backend.dto.controller.RequestStartGenerate
 import com.yooshyasha.backend.dto.controller.ResponseConfirm
+import com.yooshyasha.backend.dto.controller.ResponseGenerate
 import com.yooshyasha.backend.dto.entity.InProcessDTO
 import com.yooshyasha.backend.exceptions.GeneratedTasksNotFound
 import com.yooshyasha.backend.feign.AiServiceFeignClient
@@ -41,11 +42,11 @@ class GenerationService(
 
         val response = try {
             aiServiceFeignClient.generate(generateData)
-        } catch (e: feign.FeignException.BadRequest) {
+        } catch (_: feign.FeignException.BadRequest) {
             throw ApiException("Invalid request", 400)
         } catch (e: feign.FeignException) {
             throw ApiException("Service error: ${e.message}", e.status())
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             throw ApiException("Unexpected error", 500)
         }
 
@@ -54,12 +55,18 @@ class GenerationService(
         return response
     }
 
-    fun getTask(taskId: UUID): ResponseGetTaskStatus {
+    fun getTask(taskId: UUID): ResponseGenerate {
         return try {
             return try {
                 val result = generatedTasksStorage.getTasks(taskId)
-                ResponseGetTaskStatus(TaskStatus.COMPLETE, result)
-            } catch (e: GeneratedTasksNotFound) {
+                val inProcessDTO = inProcessStorage.get(taskId) ?: throw TaskNotFound()
+
+                ResponseGenerate(
+                    ResponseGetTaskStatus(TaskStatus.COMPLETE, result),
+                    inProcessDTO.tasks,
+                    inProcessDTO.projectId,
+                )
+            } catch (_: GeneratedTasksNotFound) {
                 aiServiceFeignClient.getTask(taskId).let { response ->
                     if (response.status == TaskStatus.COMPLETE) {
                         generatedTasksStorage.save(
@@ -70,14 +77,17 @@ class GenerationService(
                             )
                         )
                     }
-                    return response
+                    val inProcessDTO = inProcessStorage.get(taskId) ?: throw TaskNotFound()
+
+                    ResponseGenerate(response, inProcessDTO.tasks, inProcessDTO.projectId)
                 }
             }
-        } catch (e: feign.FeignException.NotFound) {
+        } catch (_: feign.FeignException.NotFound) {
             throw TaskNotFound()
-        } catch (e: feign.FeignException) {
-            ResponseGetTaskStatus(TaskStatus.FAILED, null)
-        } catch (e: Exception) {
+        } catch (_: feign.FeignException) {
+            val response = ResponseGetTaskStatus(TaskStatus.FAILED, null)
+            ResponseGenerate(response, null, null)
+        } catch (_: Exception) {
             throw ApiException("Unexpected error", 500)
         }
     }

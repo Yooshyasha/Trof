@@ -1,5 +1,6 @@
 package dto
 
+import enum.TaskControl
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,4 +10,15 @@ data class TaskDTO(
     val comments: List<String>?,
     val tags: List<String>,
     val vikunjaTaskId: Int?,
-)
+) {
+    val control: TaskControl
+        get() {
+            if (vikunjaTaskId == null) {
+                TaskControl.CREATE
+            } else if (name.isEmpty()) {
+                TaskControl.DELETE
+            } else {
+                TaskControl.EDIT
+            }
+        }
+}
