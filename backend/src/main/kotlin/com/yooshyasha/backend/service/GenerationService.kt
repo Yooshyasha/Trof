@@ -1,6 +1,7 @@
 package com.yooshyasha.backend.service
 
 import com.yooshyasha.backend.dto.controller.RequestConfirmTasks
+import com.yooshyasha.backend.dto.controller.RequestStartGenerate
 import com.yooshyasha.backend.dto.controller.ResponseConfirm
 import com.yooshyasha.backend.exceptions.GeneratedTasksNotFound
 import com.yooshyasha.backend.feign.AiServiceFeignClient
@@ -24,7 +25,7 @@ class GenerationService(
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun generate(data: GenerateRequest): ResponsePostGenerate {
+    fun generate(data: RequestStartGenerate): ResponsePostGenerate {
         return try {
             aiServiceFeignClient.generate(data)
         } catch (e: feign.FeignException.BadRequest) {

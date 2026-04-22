@@ -1,6 +1,7 @@
 package com.yooshyasha.backend.controller
 
 import com.yooshyasha.backend.dto.controller.RequestConfirmTasks
+import com.yooshyasha.backend.dto.controller.RequestStartGenerate
 import com.yooshyasha.backend.dto.controller.ResponseConfirm
 import com.yooshyasha.backend.service.GenerationService
 import dto.GenerateRequest
@@ -15,7 +16,7 @@ class GenerationController(
     private val generationService: GenerationService
 ) {
     @PostMapping("/")
-    fun generate(@RequestBody data: GenerateRequest): ResponsePostGenerate {
+    fun generate(@RequestBody data: RequestStartGenerate): ResponsePostGenerate {
         return generationService.generate(data)
     }
 
