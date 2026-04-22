@@ -81,4 +81,8 @@ class VikunjaService(
 
         return vikunjaClient.updateTask(config.vikunjaAuthorization(), taskId, request)
     }
+
+    fun deleteTask(taskId: Int): DeleteResponse {
+        return vikunjaClient.deleteTask(config.vikunjaAuthorization(), taskId)
+    }
 }

@@ -4,6 +4,7 @@ import com.yooshyasha.backend.config.VikunjaFeignConfig
 import com.yooshyasha.backend.dto.api.*
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -73,4 +74,10 @@ interface VikunjaClient {
         @PathVariable taskId: Int,
         @RequestBody request: TaskUpdateRequest,
     ): TaskResponse
+
+    @DeleteMapping("/tasks/{taskId}")
+    fun deleteTask(
+        @RequestHeader("Authorization") auth: String,
+        @PathVariable taskId: Int,
+    ): DeleteResponse
 }

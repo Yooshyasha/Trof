@@ -74,6 +74,10 @@ data class AddLabelResponse(
     val label_id: Int,
 )
 
+data class DeleteResponse(
+    val message: String,
+)
+
 data class BucketResponse(
     val id: Int,
     val title: String,
