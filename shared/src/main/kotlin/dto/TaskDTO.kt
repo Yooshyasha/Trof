@@ -13,7 +13,7 @@ data class TaskDTO(
 ) {
     val control: TaskControl
         get() {
-            if (vikunjaTaskId == null) {
+            return if (vikunjaTaskId == null) {
                 TaskControl.CREATE
             } else if (name.isEmpty()) {
                 TaskControl.DELETE
