@@ -17,7 +17,18 @@ data class ProjectResponse(
     val parent_project_id: Int?,
     val is_archived: Boolean,
     val is_favorite: Boolean
-)
+) {
+    constructor(id: Int, title: String) : this(
+        id = id,
+        title = title,
+        description = null,
+        hex_color = null,
+        identifier = null,
+        parent_project_id = null,
+        is_archived = false,
+        is_favorite = false,
+    )
+}
 
 data class TaskLabel(
     val title: String,

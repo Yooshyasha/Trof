@@ -1,5 +1,6 @@
 package com.yooshyasha.backend.service
 
+import com.yooshyasha.backend.dto.api.ProjectResponse
 import com.yooshyasha.backend.dto.controller.RequestConfirmTasks
 import com.yooshyasha.backend.dto.controller.RequestStartGenerate
 import com.yooshyasha.backend.dto.controller.ResponseConfirm
@@ -99,7 +100,13 @@ class GenerationService(
 
         var success = true
 
-        val project = vikunjaService.createProject(creationData.projectName)
+        val inProcessDTO = inProcessStorage.get(taskId) ?: throw TaskNotFound()
+        val project = if (inProcessDTO.projectId == null) {
+            vikunjaService.createProject(creationData.projectName)
+        } else {
+            val vikunjaProject = vikunjaService.getProject(inProcessDTO.projectId)
+            ProjectResponse(vikunjaProject.id, vikunjaProject.name)
+        }
         creationData.tasks.onEach { task ->
             when (task.control) {
                 TaskControl.DELETE -> {
