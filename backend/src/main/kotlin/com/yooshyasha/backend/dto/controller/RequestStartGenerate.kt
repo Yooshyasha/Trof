@@ -1,6 +1,8 @@
 package com.yooshyasha.backend.dto.controller
 
+import jakarta.validation.constraints.NotBlank
+
 data class RequestStartGenerate(
-    val text: String,
+    @NotBlank val text: String,
     val projectId: Int?,
 )
