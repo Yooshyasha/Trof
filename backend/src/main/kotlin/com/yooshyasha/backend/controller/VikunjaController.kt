@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/vikunja")
+@RequestMapping("/v1/api/vikunja")
 class VikunjaController(private val vikunjaService: VikunjaService) {
     @GetMapping("/projects")
     fun getProjects(): ResponseGetProjects {
