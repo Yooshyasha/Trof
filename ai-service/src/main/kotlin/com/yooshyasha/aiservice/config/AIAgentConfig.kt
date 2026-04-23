@@ -85,7 +85,7 @@ class AIAgentConfig(
     @Bean
     fun systemPrompt(): String =
         resourceLoader
-            .getResource("classpath:system_prompt.txt")
+            .getResource("classpath:default_system_prompt.txt")
             .inputStream
             .bufferedReader()
             .readText()
