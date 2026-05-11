@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
-import { fetchProjects, startGeneration, pollGeneration, confirmTasks } from './api'
+import { fetchProjects, startGeneration, pollGeneration, sendAnswer, confirmTasks } from './api'
 import { saveState, loadState, clearState, saveDraft, loadDraft } from './storage'
 import { useToasts } from './hooks/useToasts'
 
@@ -11,31 +11,40 @@ import { ToastContainer } from './components/ToastContainer'
 
 import './styles/global.css'
 
+function notify(title, body) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return
+  new Notification(title, { body })
+}
+
 export function App() {
   const { toasts, addToast } = useToasts()
 
   /* ── Projects ── */
-  const [projects, setProjects]             = useState([])
+  const [projects, setProjects]               = useState([])
   const [projectsLoading, setProjectsLoading] = useState(false)
 
   /* ── View ── */
-  const [view, setView]                     = useState('projects') // 'projects' | 'workspace'
-  const [selectedProject, setSelectedProject] = useState(null)    // project obj | 'new' | null
-  const [inputCollapsed, setInputCollapsed] = useState(false)
+  const [view, setView]                       = useState('projects') // 'projects' | 'workspace'
+  const [selectedProject, setSelectedProject] = useState(null)
+  const [inputCollapsed, setInputCollapsed]   = useState(false)
 
   /* ── Input ── */
   const [inputText, setInputText] = useState('')
 
   /* ── Generation ── */
-  const [genStatus, setGenStatus]         = useState('idle')   // idle | generating | polling | complete | failed
-  const [taskId, setTaskId]               = useState(null)
-  const [generatedTasks, setGeneratedTasks] = useState([])     // TaskDTO[] with _id injected
-  const [taskEdits, setTaskEdits]         = useState({})       // { [_id]: partial overrides }
+  // genStatus: 'idle' | 'generating' | 'polling' | 'question' | 'complete' | 'failed'
+  const [genStatus, setGenStatus]           = useState('idle')
+  const [taskId, setTaskId]                 = useState(null)
+  const [generatedTasks, setGeneratedTasks] = useState([])
+  const [taskEdits, setTaskEdits]           = useState({})
   const [deletedTaskIds, setDeletedTaskIds] = useState(new Set())
   const [genProjectName, setGenProjectName] = useState('')
-  const [confirmed, setConfirmed]         = useState(false)
-  const [elapsed, setElapsed]             = useState(0)
-  const [progress, setProgress]           = useState(0)
+  const [confirmed, setConfirmed]           = useState(false)
+  const [elapsed, setElapsed]               = useState(0)
+  const [progress, setProgress]             = useState(0)
+
+  /* ── AI Dialog ── */
+  const [dialog, setDialog] = useState([]) // { role: 'ai' | 'user', text: string }[]
 
   const pollRef    = useRef(null)
   const elapsedRef = useRef(null)
@@ -47,6 +56,13 @@ export function App() {
       .then(data => setProjects(data))
       .catch(err => addToast(`projects: ${err.message}`, 'error'))
       .finally(() => setProjectsLoading(false))
+  }, [])
+
+  /* ═══════════════ Browser notification permission ═══════════════ */
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
   }, [])
 
   /* ═══════════════ Restore state on mount ═══════════════ */
@@ -64,6 +80,7 @@ export function App() {
     setInputCollapsed(state.inputCollapsed || false)
     setGenProjectName(state.genProjectName || '')
     setConfirmed(state.confirmed || false)
+    setDialog(state.dialog || [])
 
     if (state.generatedTasks?.length) {
       setGeneratedTasks(state.generatedTasks)
@@ -73,7 +90,9 @@ export function App() {
       if (state.view === 'workspace') addToast('session restored', 'ok')
     }
 
-    if (state.genStatus === 'polling' && state.taskId) {
+    // Restore active generation — treat 'question' the same as 'polling' on reload:
+    // poll again and server will return QUESTION with the same message
+    if ((state.genStatus === 'polling' || state.genStatus === 'question') && state.taskId) {
       setTaskId(state.taskId)
       setGenStatus('polling')
       startTimers()
@@ -98,9 +117,10 @@ export function App() {
       deletedTaskIds: [...deletedTaskIds],
       genProjectName,
       confirmed,
+      dialog,
     })
   }, [view, selectedProject, inputText, inputCollapsed, genStatus, taskId,
-      generatedTasks, taskEdits, deletedTaskIds, genProjectName, confirmed])
+      generatedTasks, taskEdits, deletedTaskIds, genProjectName, confirmed, dialog])
 
   /* ═══════════════ Timer helpers ═══════════════ */
   function startTimers() {
@@ -122,6 +142,53 @@ export function App() {
     elapsedRef.current = null
   }
 
+  /* ═══════════════ Poll response handler (shared) ═══════════════ */
+  // Returns true if polling should continue (status was ACTIVE)
+  function processPollData(data) {
+    if (data.status === 'ACTIVE') return true
+
+    stopTimers()
+
+    if (data.status === 'QUESTION') {
+      setGenStatus('question')
+      const q = data.message ?? ''
+      setDialog(prev => {
+        // Deduplicate: don't re-append the same AI question on page restore
+        const last = prev[prev.length - 1]
+        if (last?.role === 'ai' && last?.text === q) return prev
+        return [...prev, { role: 'ai', text: q }]
+      })
+      notify('task-gen', 'AI has a question for you')
+      return false
+    }
+
+    if (data.status === 'FAILED') {
+      setGenStatus('failed')
+      addToast('generation failed on server', 'error')
+      return false
+    }
+
+    if (data.status === 'COMPLETE') {
+      setProgress(100)
+      const tasks = (data.generatedTasks?.tasks ?? []).map((t, i) => ({
+        ...t,
+        _id: i,
+        control: t.control ?? deriveControl(t),
+      }))
+      setGeneratedTasks(tasks)
+      setTaskEdits({})
+      setDeletedTaskIds(new Set())
+      setGenProjectName(data.generatedTasks?.projectName ?? '')
+      setConfirmed(false)
+      setGenStatus('complete')
+      addToast('tasks generated!', 'ok')
+      notify('task-gen', 'Tasks generated!')
+      return false
+    }
+
+    return false
+  }
+
   /* ═══════════════ Polling ═══════════════ */
   function startPolling(id) {
     if (pollRef.current) clearInterval(pollRef.current)
@@ -130,32 +197,7 @@ export function App() {
       if (!navigator.onLine) return
       try {
         const data = await pollGeneration(id)
-        if (data.status === 'ACTIVE') return
-
-        stopTimers()
-
-        if (data.status === 'FAILED') {
-          setGenStatus('failed')
-          addToast('generation failed on server', 'error')
-          return
-        }
-
-        if (data.status === 'COMPLETE') {
-          setProgress(100)
-          const tasks = (data.generatedTasks?.tasks ?? []).map((t, i) => ({
-            ...t,
-            _id: i,
-            // Compute control client-side as fallback (mirrors Kotlin logic)
-            control: t.control ?? deriveControl(t),
-          }))
-          setGeneratedTasks(tasks)
-          setTaskEdits({})
-          setDeletedTaskIds(new Set())
-          setGenProjectName(data.generatedTasks?.projectName ?? '')
-          setConfirmed(false)
-          setGenStatus('complete')
-          addToast('tasks generated!', 'ok')
-        }
+        processPollData(data)
       } catch (err) {
         stopTimers()
         setGenStatus('failed')
@@ -169,7 +211,7 @@ export function App() {
 
   function deriveControl(task) {
     if (task.vikunjaTaskId == null) return 'CREATE'
-    if (!task.name)                 return 'DELETE'
+    if (!task.name)                  return 'DELETE'
     return 'EDIT'
   }
 
@@ -181,6 +223,7 @@ export function App() {
     const projectId =
       selectedProject && selectedProject !== 'new' ? selectedProject.id : null
 
+    setDialog([])
     setGenStatus('generating')
     setProgress(0)
 
@@ -193,6 +236,23 @@ export function App() {
     } catch (err) {
       setGenStatus('failed')
       addToast(`failed to start: ${err.message}`, 'error')
+    }
+  }
+
+  /* ═══════════════ Send answer to AI ═══════════════ */
+  async function handleSendAnswer(answer) {
+    setDialog(prev => [...prev, { role: 'user', text: answer }])
+    setGenStatus('polling')
+    startTimers()
+
+    try {
+      const data = await sendAnswer(taskId, answer)
+      const keepPolling = processPollData(data)
+      if (keepPolling) startPolling(taskId)
+    } catch (err) {
+      stopTimers()
+      setGenStatus('failed')
+      addToast(`answer failed: ${err.message}`, 'error')
     }
   }
 
@@ -219,9 +279,7 @@ export function App() {
   /* ═══════════════ Confirm ═══════════════ */
   async function handleConfirm() {
     if (confirmed || !taskId) return
-
     const payload = buildConfirmPayload()
-
     try {
       const res = await confirmTasks(taskId, payload)
       if (res.success) {
@@ -274,6 +332,7 @@ export function App() {
     setTaskEdits({})
     setDeletedTaskIds(new Set())
     setConfirmed(false)
+    setDialog([])
     setInputText(loadDraft() || '')
     setInputCollapsed(false)
   }
@@ -287,6 +346,7 @@ export function App() {
     setTaskEdits({})
     setDeletedTaskIds(new Set())
     setConfirmed(false)
+    setDialog([])
     setInputText(loadDraft() || '')
     setInputCollapsed(false)
   }
@@ -299,6 +359,7 @@ export function App() {
     setGeneratedTasks([])
     setTaskEdits({})
     setDeletedTaskIds(new Set())
+    setDialog([])
   }
 
   function handleClearData() {
@@ -349,6 +410,8 @@ export function App() {
           genStatus={genStatus}
           elapsed={elapsed}
           progress={progress}
+          dialog={dialog}
+          onSendAnswer={handleSendAnswer}
           generatedTasks={generatedTasks}
           deletedTaskIds={deletedTaskIds}
           onDeleteTask={handleTaskDelete}

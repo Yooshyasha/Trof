@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react'
+import { AiDialog } from './AiDialog'
 
 export function InputPanel({
   collapsed,
@@ -10,6 +11,8 @@ export function InputPanel({
   genStatus,
   elapsed,
   progress,
+  dialog,
+  onSendAnswer,
 }) {
   const textareaRef = useRef(null)
 
@@ -24,7 +27,9 @@ export function InputPanel({
   const isNew        = project === 'new' || project == null
   const projectName  = isNew ? null : project?.name
   const isGenerating = genStatus === 'generating' || genStatus === 'polling'
+  const isQuestion   = genStatus === 'question'
   const isComplete   = genStatus === 'complete'
+  const isBusy       = isGenerating || isQuestion
 
   function handleKeyDown(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -74,39 +79,52 @@ export function InputPanel({
               <span>{projectName}</span>
             </div>
           )}
+
+          {isQuestion && (
+            <span className="input-panel__question-badge">
+              <span className="input-panel__question-dot" />
+              AI is asking
+            </span>
+          )}
         </div>
 
-        {/* Textarea */}
+        {/* Body: textarea OR dialog */}
         <div className="input-panel__body">
-          <div className="input-panel__label">
-            {isNew ? 'project description' : 'describe changes'}
-          </div>
-          <textarea
-            ref={textareaRef}
-            className="input-panel__textarea"
-            placeholder={
-              isNew
-                ? 'describe the project you want to build...'
-                : 'describe what you want to add, change or remove...'
-            }
-            value={inputText}
-            onChange={e => onInputChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isGenerating}
-          />
-          <span
-            style={{
-              fontSize: 11,
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--text-dim)',
-              marginTop: -6,
-            }}
-          >
-            ctrl+enter to generate
-          </span>
+          {isQuestion ? (
+            <AiDialog dialog={dialog} onSend={onSendAnswer} />
+          ) : (
+            <>
+              <div className="input-panel__label">
+                {isNew ? 'project description' : 'describe changes'}
+              </div>
+              <textarea
+                ref={textareaRef}
+                className="input-panel__textarea"
+                placeholder={
+                  isNew
+                    ? 'describe the project you want to build...'
+                    : 'describe what you want to add, change or remove...'
+                }
+                value={inputText}
+                onChange={e => onInputChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isGenerating}
+              />
+              <span
+                style={{
+                  fontSize: 11,
+                  fontFamily: 'var(--font-mono)',
+                  color: 'var(--text-dim)',
+                  marginTop: -6,
+                }}
+              >
+                ctrl+enter to generate
+              </span>
+            </>
+          )}
         </div>
 
-        {/* Generation status */}
+        {/* Generation status bar */}
         {(isGenerating || isComplete) && (
           <div className="input-panel__status">
             {isGenerating && (
@@ -143,10 +161,12 @@ export function InputPanel({
           <button
             className="btn btn--primary"
             onClick={onGenerate}
-            disabled={isGenerating || !inputText.trim()}
+            disabled={isBusy || !inputText.trim()}
           >
             {isGenerating
               ? '⟳ generating...'
+              : isQuestion
+              ? '⟳ waiting...'
               : isComplete
               ? 'regenerate'
               : 'generate'}

@@ -569,6 +569,42 @@ body {
   background: var(--surface);
 }
 
+/* ── Question badge in top bar ── */
+.input-panel__question-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-bright);
+  background: rgba(155, 125, 200, 0.1);
+  border: 1px solid rgba(155, 125, 200, 0.3);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: auto;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+.input-panel__question-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-bright);
+  box-shadow: 0 0 6px var(--accent-glow);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.5); opacity: 0.6; }
+}
+
 /* ── Status bar inside input panel ── */
 .input-panel__status {
   padding: 14px 20px;
@@ -738,6 +774,123 @@ body {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--create);
+}
+
+/* ═══════════════════════════════════════════════════
+   AI DIALOG
+═══════════════════════════════════════════════════ */
+.ai-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0; /* allow flex child to shrink */
+}
+
+.ai-dialog__history {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 4px;
+}
+
+.ai-dialog__bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 88%;
+  animation: card-enter 0.2s ease both;
+}
+
+.ai-dialog__bubble--ai   { align-self: flex-start; }
+.ai-dialog__bubble--user { align-self: flex-end; }
+
+.ai-dialog__bubble-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0 4px;
+}
+
+.ai-dialog__bubble--ai   .ai-dialog__bubble-label { color: var(--accent-mid); }
+.ai-dialog__bubble--user .ai-dialog__bubble-label {
+  color: var(--text-dim);
+  text-align: right;
+}
+
+.ai-dialog__bubble-text {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.65;
+  border-radius: var(--radius);
+}
+
+.ai-dialog__bubble--ai .ai-dialog__bubble-text {
+  background: rgba(86, 72, 117, 0.18);
+  border: 1px solid var(--border-focus);
+  color: var(--text);
+  border-top-left-radius: var(--radius-sm);
+  box-shadow: 0 0 16px var(--accent-glow-soft);
+}
+
+.ai-dialog__bubble--user .ai-dialog__bubble-text {
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-top-right-radius: var(--radius-sm);
+}
+
+/* Answer input area */
+.ai-dialog__input-area {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.ai-dialog__textarea {
+  width: 100%;
+  min-height: 68px;
+  max-height: 160px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-focus);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 10px 14px;
+  resize: none;
+  outline: none;
+  transition: border-color var(--t), box-shadow var(--t);
+  box-shadow: 0 0 0 1px var(--accent-glow-soft);
+}
+
+.ai-dialog__textarea:focus {
+  border-color: var(--accent-mid);
+  box-shadow: 0 0 0 1px var(--accent-glow), 0 0 20px var(--accent-glow-soft);
+}
+
+.ai-dialog__textarea::placeholder { color: var(--text-dim); }
+
+.ai-dialog__send-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ai-dialog__hint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  flex: 1;
 }
 
 /* ═══════════════════════════════════════════════════

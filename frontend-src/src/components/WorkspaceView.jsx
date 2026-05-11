@@ -11,6 +11,8 @@ export function WorkspaceView({
   genStatus,
   elapsed,
   progress,
+  dialog,
+  onSendAnswer,
   generatedTasks,
   deletedTaskIds,
   onDeleteTask,
@@ -37,6 +39,8 @@ export function WorkspaceView({
         genStatus={genStatus}
         elapsed={elapsed}
         progress={progress}
+        dialog={dialog}
+        onSendAnswer={onSendAnswer}
       />
 
       <TasksPanel

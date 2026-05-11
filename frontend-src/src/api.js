@@ -32,6 +32,14 @@ export async function pollGeneration(taskId) {
   return request(`/v1/api/generation/${taskId}`)
 }
 
+export async function sendAnswer(taskId, answer) {
+  return request('/v1/api/generation/answer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ taskId, answer }),
+  })
+}
+
 export async function confirmTasks(taskId, confirmPayload) {
   return request(`/v1/api/generation/${taskId}/confirm`, {
     method: 'POST',
