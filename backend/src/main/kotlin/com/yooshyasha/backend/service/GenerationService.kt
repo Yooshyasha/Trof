@@ -6,6 +6,7 @@ import com.yooshyasha.backend.dto.controller.RequestStartGenerate
 import com.yooshyasha.backend.dto.controller.ResponseConfirm
 import com.yooshyasha.backend.dto.controller.ResponseGenerate
 import com.yooshyasha.backend.dto.entity.InProcessDTO
+import com.yooshyasha.backend.enum.ConfirmedTaskStatus
 import com.yooshyasha.backend.exceptions.GeneratedTasksNotFound
 import com.yooshyasha.backend.exceptions.InvalidStateForSendAnswer
 import com.yooshyasha.backend.feign.AiServiceFeignClient
@@ -107,7 +108,10 @@ class GenerationService(
             when (task.control) {
                 TaskControl.DELETE -> {
                     try {
-                        vikunjaService.deleteTask(task.vikunjaTaskId!!)
+                        val confirmTask = data.confirmTasks.first { it.taskDTO?.vikunjaTaskId == task.vikunjaTaskId }
+                        if (confirmTask.status == ConfirmedTaskStatus.APPROVE) {
+                            vikunjaService.deleteTask(task.vikunjaTaskId!!)
+                        }
                     } catch (e: Exception) {
                         logger.error("Error delete task (${task.vikunjaTaskId})", e)
                         success = false
