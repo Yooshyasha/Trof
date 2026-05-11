@@ -6,13 +6,12 @@ import com.yooshyasha.aiservice.storage.AIQuestionStorage
 import com.yooshyasha.aiservice.storage.FutureStatusStorage
 import com.yooshyasha.aiservice.storage.UserAnswerStorage
 import enum.TaskStatus
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.*
+import java.util.concurrent.CancellationException
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @Component
 class UserInputToolSet(
@@ -28,19 +27,20 @@ class UserInputToolSet(
             futureStatusStorage.save(futureId, TaskStatus.QUESTION)
             aiQuestionStorage.save(futureId, message)
 
-            var answer: String?
+            val deferred = userAnswerStorage.subscribe(futureId)
 
             return withTimeout(5.minutes) {
-                do {
-                    delay(1.seconds)  //
-                    answer = userAnswerStorage.getAnswer(futureId)
-                } while (answer == null)
-
-                return@withTimeout answer
+                deferred.await()
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             logger.error("Ошибка во время выполнения require user input ($futureId, $message)", e)
             return "Ошибка во время выполнения инструмента: ${e.message}"
+        } finally {
+            userAnswerStorage.remove(futureId)
+            aiQuestionStorage.remove(futureId)
+            futureStatusStorage.save(futureId, TaskStatus.ACTIVE)
         }
     }
 }
