@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.concurrent.CancellationException
-import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.hours
 
 
 @Component
@@ -36,7 +36,7 @@ class UserInputToolSetFactory(
 
                 val deferred = userAnswerStorage.subscribe(futureId)
 
-                return withTimeout(5.minutes) {
+                return withTimeout(6.hours) {
                     deferred.await()
                 }
             } catch (e: CancellationException) {
