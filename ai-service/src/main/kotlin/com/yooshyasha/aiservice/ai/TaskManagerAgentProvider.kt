@@ -4,11 +4,9 @@ import ai.koog.agents.core.agent.AIAgent
 import ai.koog.agents.core.agent.config.AIAgentConfig
 import ai.koog.agents.core.agent.entity.createStorageKey
 import ai.koog.agents.core.dsl.builder.strategy
-import ai.koog.agents.core.dsl.extension.nodeExecuteTool
 import ai.koog.agents.core.dsl.extension.nodeLLMRequestStructured
-import ai.koog.agents.core.dsl.extension.nodeLLMSendToolResult
-import ai.koog.agents.core.dsl.extension.onToolCall
 import ai.koog.agents.core.tools.ToolRegistry
+import ai.koog.agents.ext.agent.reActStrategy
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.llms.SingleLLMPromptExecutor
 import ai.koog.prompt.llm.LLModel
@@ -35,16 +33,18 @@ class TaskManagerAgentProvider(
             val originalKey = createStorageKey<String>("original")
             val generatedTasksKey = createStorageKey<GeneratedTasksResponse>("generated tasks response")
 
+            val nodeVerifyInput =
+                reActStrategy(reasoningPrompt = "Определи, достаточно ли контекста для определения задач")
             val nodeGenerateTasks by nodeLLMRequestStructured<GeneratedTasksResponse>("generate")
             val nodeVerify by nodeLLMRequestStructured<VerifyTasksResult>("verify")
 
-            val executeTool by nodeExecuteTool("execute tool")
-            val sendToolResult by nodeLLMSendToolResult("send tool result")
 
-            edge(executeTool forwardTo sendToolResult)
-
-            edge(nodeStart forwardTo nodeGenerateTasks transformed {
+            edge(nodeStart forwardTo nodeVerifyInput transformed {
                 storage.set(originalKey, it)
+
+                it
+            })
+            edge(nodeVerifyInput forwardTo nodeGenerateTasks transformed {
                 """
                     MODE: GENERATE
                     ORIGINAL:
@@ -54,19 +54,6 @@ class TaskManagerAgentProvider(
                 """.trimMargin()
             })
 
-            edge(sendToolResult forwardTo nodeGenerateTasks transformed {
-                val original = storage.get(originalKey)!!
-
-                """
-                    MODE: GENERATE
-                    ORIGINAL:
-                    $original
-                    REFINEMENT:
-                    none
-                """.trimMargin()
-            })
-
-            edge(nodeGenerateTasks forwardTo executeTool onToolCall { true })
             edge(nodeGenerateTasks forwardTo nodeVerify transformed {
                 it
                     .onSuccess { response -> storage.set(generatedTasksKey, response.data) }
@@ -82,7 +69,6 @@ class TaskManagerAgentProvider(
                 """.trimIndent()
             })
 
-            edge(nodeVerify forwardTo executeTool onToolCall { true })
             edge(nodeVerify forwardTo nodeGenerateTasks onCondition {
                 it.onFailure { throw Exception("structure failed") }
 
