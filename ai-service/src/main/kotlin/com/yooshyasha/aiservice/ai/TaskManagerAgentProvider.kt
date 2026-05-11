@@ -34,7 +34,7 @@ class TaskManagerAgentProvider(
             val generatedTasksKey = createStorageKey<GeneratedTasksResponse>("generated tasks response")
 
             val nodeVerifyInput =
-                reActStrategy(reasoningPrompt = "Определи, достаточно ли контекста для определения задач")
+                reActStrategy(reasoningPrompt = "Определи, достаточно ли контекста для определения задач. Запроси уточнения у пользователя по необходимости. Итого ТЗ должно быть максимально понятно.")
             val nodeGenerateTasks by nodeLLMRequestStructured<GeneratedTasksResponse>("generate")
             val nodeVerify by nodeLLMRequestStructured<VerifyTasksResult>("verify")
 
