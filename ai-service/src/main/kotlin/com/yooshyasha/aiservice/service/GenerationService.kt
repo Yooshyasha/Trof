@@ -55,6 +55,7 @@ class GenerationService(
             response = aiTaskGenerationService.getTaskResult(task)
         } catch (e: Exception) {
             futureStorage.remove(taskId)
+            futureStatusStorage.remove(taskId)
             return ResponseGetTaskStatus(TaskStatus.FAILED, null)
         }
 
@@ -70,6 +71,7 @@ class GenerationService(
 
             else -> {
                 futureStorage.remove(taskId)
+                futureStatusStorage.remove(taskId)
                 ResponseGetTaskStatus(TaskStatus.COMPLETE, response)
             }
         }
