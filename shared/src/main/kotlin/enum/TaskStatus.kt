@@ -1,5 +1,5 @@
 package enum
 
 enum class TaskStatus {
-    ACTIVE, COMPLETE, FAILED
+    ACTIVE, COMPLETE, FAILED, QUESTION
 }

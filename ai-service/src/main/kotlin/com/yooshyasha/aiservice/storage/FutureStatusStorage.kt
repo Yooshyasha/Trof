@@ -13,7 +13,7 @@ class FutureStatusStorage {
         statusMap[id] = data
     }
 
-    fun get(taskId: UUID): TaskStatus? = statusMap[taskId]
+    fun getStatus(taskId: UUID) = statusMap[taskId]
 
     fun remove(taskId: UUID) {
         statusMap.remove(taskId)
