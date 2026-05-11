@@ -37,6 +37,7 @@ class TaskManagerAgentProvider(
                 tools = ToolRegistry {
                     tools(userInputToolSetFactory.UserInputToolSet(futureId))
                 }.tools,
+                assistantResponseRepeatMax = 12,
             ) { userInput ->
                 "Определи, достаточно ли контекста для определения задач. Запроси уточнения " +
                         "(обязательно с помощью инструмента) у пользователя по необходимости. " +
@@ -107,7 +108,7 @@ class TaskManagerAgentProvider(
                     system(systemPrompt)
                 },
                 model = llModel,
-                maxAgentIterations = 12,
+                maxAgentIterations = 24,
             ),
             toolRegistry = ToolRegistry {
                 tools(userInputToolSetFactory.UserInputToolSet(futureId))
