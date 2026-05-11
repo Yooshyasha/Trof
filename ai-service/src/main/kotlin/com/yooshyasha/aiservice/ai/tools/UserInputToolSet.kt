@@ -22,7 +22,7 @@ class UserInputToolSet(
 ) : ToolSet {
     private val logger = LoggerFactory.getLogger(UserInputToolSet::class.java)
 
-    @Tool
+    @Tool("require user input")
     @LLMDescription("Инструмент для запроса ввода пользователя")
     suspend fun requireUserInput(
         @LLMDescription("futureId процесса")
