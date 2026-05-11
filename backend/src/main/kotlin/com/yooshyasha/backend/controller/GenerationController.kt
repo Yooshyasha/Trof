@@ -32,7 +32,7 @@ class GenerationController(
     }
 
     @PostMapping("/answer")
-    suspend fun sendAnswer(@RequestBody data: RequestSendAnswer): ResponseGetTaskStatus {
+    fun sendAnswer(@RequestBody data: RequestSendAnswer): ResponseGetTaskStatus {
         return generationService.sendAnswer(data)
     }
 }
