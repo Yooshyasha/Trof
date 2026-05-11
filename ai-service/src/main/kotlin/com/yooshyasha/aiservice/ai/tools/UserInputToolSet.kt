@@ -1,5 +1,6 @@
 package com.yooshyasha.aiservice.ai.tools
 
+import ai.koog.agents.core.tools.annotations.LLMDescription
 import ai.koog.agents.core.tools.annotations.Tool
 import ai.koog.agents.core.tools.reflect.ToolSet
 import com.yooshyasha.aiservice.storage.AIQuestionStorage
@@ -22,7 +23,13 @@ class UserInputToolSet(
     private val logger = LoggerFactory.getLogger(UserInputToolSet::class.java)
 
     @Tool
-    suspend fun requireUserInput(futureId: UUID, message: String): String {
+    @LLMDescription("Инструмент для запроса ввода пользователя")
+    suspend fun requireUserInput(
+        @LLMDescription("futureId процесса")
+        futureId: UUID,
+        @LLMDescription("Сообщение, которое увидит пользователь")
+        message: String,
+    ): String {
         try {
             futureStatusStorage.save(futureId, TaskStatus.QUESTION)
             aiQuestionStorage.save(futureId, message)
