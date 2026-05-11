@@ -21,7 +21,7 @@ repositories {
     mavenCentral()
 }
 
-val koogVersion = "0.6.3"
+val koogVersion = "0.8.0"
 val ktorVersion = "3.4.0"
 
 configurations.all {
