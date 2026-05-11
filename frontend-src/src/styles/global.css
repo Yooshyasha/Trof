@@ -844,6 +844,100 @@ body {
   border-top-right-radius: var(--radius-sm);
 }
 
+/* Markdown content inside AI bubbles */
+.ai-dialog__bubble-text p { margin: 0 0 8px; }
+.ai-dialog__bubble-text p:last-child { margin-bottom: 0; }
+
+.ai-dialog__bubble-text h1,
+.ai-dialog__bubble-text h2,
+.ai-dialog__bubble-text h3 {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent-bright);
+  margin: 10px 0 4px;
+}
+.ai-dialog__bubble-text h1 { font-size: 14px; }
+.ai-dialog__bubble-text h2 { font-size: 13px; }
+.ai-dialog__bubble-text h3 { font-size: 12px; }
+
+.ai-dialog__bubble-text ul,
+.ai-dialog__bubble-text ol {
+  margin: 4px 0 8px 16px;
+  padding: 0;
+}
+.ai-dialog__bubble-text li { margin-bottom: 2px; }
+
+.ai-dialog__bubble-text code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: rgba(86, 72, 117, 0.25);
+  border: 1px solid var(--border-focus);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--accent-bright);
+}
+
+.ai-dialog__bubble-text pre {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+.ai-dialog__bubble-text pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.ai-dialog__bubble-text blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 6px 0;
+  padding: 4px 0 4px 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.ai-dialog__bubble-text a {
+  color: var(--accent-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ai-dialog__bubble-text a:hover { color: var(--text); }
+
+.ai-dialog__bubble-text strong { color: var(--text); font-weight: 600; }
+.ai-dialog__bubble-text em { color: var(--text-muted); }
+
+.ai-dialog__bubble-text hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 8px 0;
+}
+
+.ai-dialog__bubble-text table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 8px 0;
+}
+.ai-dialog__bubble-text th,
+.ai-dialog__bubble-text td {
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  text-align: left;
+}
+.ai-dialog__bubble-text th {
+  background: var(--surface-3);
+  color: var(--accent-mid);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* Answer input area */
 .ai-dialog__input-area {
   flex-shrink: 0;

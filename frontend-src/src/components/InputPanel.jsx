@@ -90,8 +90,8 @@ export function InputPanel({
 
         {/* Body: textarea OR dialog */}
         <div className="input-panel__body">
-          {isQuestion ? (
-            <AiDialog dialog={dialog} onSend={onSendAnswer} />
+          {dialog.length > 0 ? (
+            <AiDialog dialog={dialog} onSend={onSendAnswer} canSend={isQuestion} />
           ) : (
             <>
               <div className="input-panel__label">
