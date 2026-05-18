@@ -108,7 +108,7 @@ class TaskManagerAgentProvider(
                     system(systemPrompt)
                 },
                 model = llModel,
-                maxAgentIterations = 24,
+                maxAgentIterations = 32,
             ),
             toolRegistry = ToolRegistry {
                 tools(userInputToolSetFactory.UserInputToolSet(futureId))
@@ -117,5 +117,5 @@ class TaskManagerAgentProvider(
     }
 
     override fun provideAgent(futureId: UUID) = provideAgent(defaultSystemPrompt, futureId)
-    fun provideAgentWithEditMark(futureId: UUID) = provideAgent(editMarkSystemPrompt, futureId)
+    fun provideAgentWithEditMark(futureId: UUID) = provideAgent(defaultSystemPrompt + editMarkSystemPrompt, futureId)
 }
