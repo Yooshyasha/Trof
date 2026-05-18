@@ -39,8 +39,8 @@ class TaskManagerAgentProvider(
                 }.tools,
                 assistantResponseRepeatMax = 12,
             ) { userInput ->
-                "Определи, достаточно ли контекста для определения задач. Запроси уточнения " +
-                        "(обязательно с помощью инструмента) у пользователя по необходимости. " +
+                "Определи, достаточно ли контекста для определения задач. Запроси уточнени у пользователя с " +
+                        "помощью инструмента по необходимости. " +
                         "Итого ТЗ должно быть максимально понятно.\nЗапрос пользователя: $userInput"
             }
             val nodeGenerateTasks by nodeLLMRequestStructured<GeneratedTasksResponse>("generate")
@@ -55,8 +55,6 @@ class TaskManagerAgentProvider(
             edge(nodeVerifyInput forwardTo nodeGenerateTasks transformed {
                 """
                     MODE: GENERATE
-                    ORIGINAL:
-                    $it
                     REFINEMENT:
                     none
                 """.trimMargin()
@@ -82,11 +80,8 @@ class TaskManagerAgentProvider(
 
                 it.getOrNull()!!.data.status == VerifyStatus.FAIL
             } transformed {
-                val original = storage.get(originalKey)!!
                 """
                     MODE: GENERATE
-                    ORIGINAL: 
-                    $original
                     REFINEMENT:
                     ${it.getOrNull()!!.data.refinementInstruction}
                 """.trimIndent()
