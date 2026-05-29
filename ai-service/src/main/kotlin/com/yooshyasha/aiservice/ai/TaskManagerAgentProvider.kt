@@ -33,6 +33,7 @@ class TaskManagerAgentProvider(
     override fun provideAgent(systemPrompt: String, futureId: UUID): AIAgent<String, GeneratedTasksResponse> {
         val strategy = strategy<String, GeneratedTasksResponse>("task manager") {
             val originalKey = createStorageKey<String>("original")
+            val clarificationsKey = createStorageKey<String>("clarifications")
             val generatedTasksKey = createStorageKey<GeneratedTasksResponse>("generated tasks response")
 
             val nodeVerifyInput by subgraphWithTask<String, String>(
@@ -48,6 +49,7 @@ class TaskManagerAgentProvider(
             val nodeGenerateTasks by nodeLLMRequestStructured<GeneratedTasksResponse>("generate")
             val nodeVerify by node<String, VerifyTasksResult>("verify") { input ->
                 val original = storage.get(originalKey)
+                val clarifications = storage.get(clarificationsKey)
 
                 tasksVerifyAgentProvider.provideAgent(futureId).run(
                     """
@@ -55,6 +57,8 @@ class TaskManagerAgentProvider(
                         $input
                         ORIGINAL:
                         $original
+                        CLARIFICATIONS:
+                        $clarifications
                     """.trimIndent()
                 )
             }
@@ -65,6 +69,8 @@ class TaskManagerAgentProvider(
                 it
             })
             edge(nodeVerifyInput forwardTo nodeGenerateTasks transformed {
+                storage.set(clarificationsKey, it)
+
                 """
                     MODE: GENERATE
                 """.trimMargin()
