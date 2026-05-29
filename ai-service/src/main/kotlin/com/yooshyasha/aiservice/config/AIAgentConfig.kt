@@ -50,4 +50,11 @@ class AIAgentConfig(
             .bufferedReader()
             .readText()
 
+    @Bean
+    fun verifySystemPrompt(): String =
+        resourceLoader
+            .getResource("classpath:verify_system_prompt.txt")
+            .inputStream
+            .bufferedReader()
+            .readText()
 }
