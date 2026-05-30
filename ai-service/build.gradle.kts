@@ -25,20 +25,12 @@ repositories {
 
 val koogVersion = "1.0.0"
 val koogStarterVersion = "$koogVersion-beta-preview7"
-val ktorVersion = "3.4.0"
 
 configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.jetbrains.kotlinx" && requested.name.startsWith("kotlinx-coroutines")) {
-            useVersion("1.10.2")
-        }
-        if (requested.group == "org.jetbrains.kotlinx" && requested.name.startsWith("kotlinx-serialization")) {
-            useVersion("1.8.1")
-        }
-        if (requested.group == "io.modelcontextprotocol" && requested.name == "kotlin-sdk") {
-            useVersion("0.4.0")
-        }
-    }
+    exclude(group = "io.ktor", module = "ktor-client-apache5")
+    exclude(group = "io.ktor", module = "ktor-client-apache5-jvm")
+    exclude(group = "io.ktor", module = "ktor-client-cio")
+    exclude(group = "io.ktor", module = "ktor-client-cio-jvm")
 }
 
 dependencies {
@@ -54,10 +46,6 @@ dependencies {
 
     implementation("ai.koog:koog-agents:$koogVersion")
     implementation("ai.koog:koog-spring-boot-starter:$koogStarterVersion")
-    implementation("io.ktor:ktor-client-okhttp-jvm:$ktorVersion")
-
-    // Source: https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.6.1")
 
     implementation(kotlin("stdlib"))
 
