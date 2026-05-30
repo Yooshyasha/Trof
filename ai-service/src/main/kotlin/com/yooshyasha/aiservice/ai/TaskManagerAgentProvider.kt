@@ -109,7 +109,9 @@ class TaskManagerAgentProvider(
                 model = modelResolver.resolve(),
                 maxAgentIterations = 32,
             ),
-            toolRegistry = ToolRegistry.EMPTY,
+            toolRegistry = ToolRegistry {
+                tools(userInputToolSetFactory.UserInputToolSet(futureId))
+            },
         )
     }
 
