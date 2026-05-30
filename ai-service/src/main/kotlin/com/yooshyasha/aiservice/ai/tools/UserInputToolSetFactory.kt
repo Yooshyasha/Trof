@@ -24,7 +24,7 @@ class UserInputToolSetFactory(
     inner class UserInputToolSet(private val futureId: UUID) : ToolSet {
         private val logger = LoggerFactory.getLogger(UserInputToolSet::class.java)
 
-        @Tool("require user input")
+        @Tool("require-user-input")
         @LLMDescription("Инструмент для запроса ввода пользователя")
         suspend fun requireUserInput(
             @LLMDescription("Сообщение, которое увидит пользователь")
