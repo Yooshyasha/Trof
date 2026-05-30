@@ -28,6 +28,17 @@ val koogStarterVersion = "$koogVersion-beta-preview7"
 val ktorVersion = "3.4.0"
 
 configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlinx" && requested.name.startsWith("kotlinx-coroutines")) {
+            useVersion("1.10.2")
+        }
+        if (requested.group == "org.jetbrains.kotlinx" && requested.name.startsWith("kotlinx-serialization")) {
+            useVersion("1.8.1")
+        }
+        if (requested.group == "io.modelcontextprotocol" && requested.name == "kotlin-sdk") {
+            useVersion("0.4.0")
+        }
+    }
     exclude(group = "io.ktor", module = "ktor-client-apache5")
     exclude(group = "io.ktor", module = "ktor-client-apache5-jvm")
     exclude(group = "io.ktor", module = "ktor-client-cio")
