@@ -1,5 +1,7 @@
 networks:
   app:
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
 
 services:
   ai-service:
