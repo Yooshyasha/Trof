@@ -26,7 +26,15 @@ export function ProjectsView({ projects, loading, onSelect, onCreateNew }) {
               <li
                 key={project.id}
                 className="project-item"
+                role="button"
+                tabIndex={0}
                 onClick={() => onSelect(project)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onSelect(project)
+                  }
+                }}
               >
                 <span className="project-item__dot" />
                 <span className="project-item__name">{project.name}</span>

@@ -208,6 +208,17 @@ body {
   box-shadow: 0 0 12px var(--accent-glow-soft);
 }
 .btn:active { opacity: 0.75; transform: scale(0.98); }
+
+/* ── Keyboard focus visibility ── */
+.btn:focus-visible,
+.project-item:focus-visible,
+.tag-chip__remove:focus-visible,
+.undo-bar__btn:focus-visible,
+.task-card__delete-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent-mid);
+}
+.project-item:focus-visible { background: var(--surface-2); }
 .btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
@@ -559,6 +570,19 @@ body {
   box-shadow: 0 0 0 1px var(--accent-glow), 0 0 20px var(--accent-glow-soft);
 }
 
+.input-panel__hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: -6px;
+}
+
+.input-panel__complete {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ok);
+}
+
 .input-panel__footer {
   flex-shrink: 0;
   padding: 12px 20px;
@@ -723,14 +747,14 @@ body {
 }
 
 .tasks-panel__empty-icon {
-  font-size: 32px;
-  opacity: 0.15;
+  font-size: 36px;
+  opacity: 0.22;
   filter: grayscale(1);
 }
 
 .tasks-panel__empty-text {
   font-size: 13px;
-  color: var(--text-dim);
+  color: var(--text-muted);
   text-align: center;
   font-family: var(--font-mono);
   line-height: 1.8;
@@ -840,7 +864,7 @@ body {
 .ai-dialog__bubble--user .ai-dialog__bubble-text {
   background: var(--surface-3);
   border: 1px solid var(--border);
-  color: var(--text-muted);
+  color: var(--text);
   border-top-right-radius: var(--radius-sm);
 }
 
@@ -936,6 +960,34 @@ body {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+/* ── Typing / "AI is thinking" indicator ── */
+.ai-dialog__bubble-text--thinking {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px;
+}
+
+.ai-dialog__typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ai-dialog__typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-bright);
+  opacity: 0.4;
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+.ai-dialog__typing span:nth-child(2) { animation-delay: 0.18s; }
+.ai-dialog__typing span:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30%           { opacity: 1;   transform: translateY(-3px); }
 }
 
 /* Answer input area */
@@ -1251,11 +1303,63 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════
+   HOTKEY BAR
+═══════════════════════════════════════════════════ */
+.hotkey-bar {
+  flex-shrink: 0;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 20px;
+  background: rgba(12, 11, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+  overflow-y: hidden;
+  z-index: 10;
+}
+.hotkey-bar::-webkit-scrollbar { height: 0; }
+
+.hotkey {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.hotkey__key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 17px;
+  padding: 0 5px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--accent-bright);
+  background: var(--surface-2);
+  border: 1px solid var(--border-light);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.hotkey__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+
+/* ═══════════════════════════════════════════════════
    TOAST NOTIFICATIONS
 ═══════════════════════════════════════════════════ */
 .toast-container {
   position: fixed;
-  bottom: 24px;
+  bottom: 42px;
   right: 24px;
   display: flex;
   flex-direction: column;

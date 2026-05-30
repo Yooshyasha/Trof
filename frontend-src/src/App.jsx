@@ -7,6 +7,7 @@ import { useToasts } from './hooks/useToasts'
 import { Header }        from './components/Header'
 import { ProjectsView }  from './components/ProjectsView'
 import { WorkspaceView } from './components/WorkspaceView'
+import { HotkeyBar }     from './components/HotkeyBar'
 import { ToastContainer } from './components/ToastContainer'
 
 import './styles/global.css'
@@ -64,6 +65,28 @@ export function App() {
       Notification.requestPermission()
     }
   }, [])
+
+  /* ═══════════════ Global hotkeys ═══════════════ */
+  useEffect(() => {
+    function onKey(e) {
+      if (!(e.ctrlKey || e.metaKey)) return
+      if (view !== 'workspace') return
+      const k = e.key.toLowerCase()
+
+      if (k === 'b') {
+        e.preventDefault()
+        setInputCollapsed(c => !c)
+      } else if (k === 's') {
+        if (genStatus === 'complete' && generatedTasks.length > 0 && !confirmed) {
+          e.preventDefault()
+          handleConfirm()
+        }
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, genStatus, generatedTasks, confirmed, taskId])
 
   /* ═══════════════ Restore state on mount ═══════════════ */
   useEffect(() => {
@@ -223,7 +246,7 @@ export function App() {
     const projectId =
       selectedProject && selectedProject !== 'new' ? selectedProject.id : null
 
-    setDialog([])
+    setDialog([{ role: 'user', text }])
     setGenStatus('generating')
     setProgress(0)
 
@@ -254,6 +277,11 @@ export function App() {
       setGenStatus('failed')
       addToast(`answer failed: ${err.message}`, 'error')
     }
+  }
+
+  /* ═══════════════ Edit brief (return from chat to editable textarea) ═══════════════ */
+  function handleEditBrief() {
+    setDialog([])
   }
 
   /* ═══════════════ Update / Delete tasks ═══════════════ */
@@ -377,6 +405,9 @@ export function App() {
   }
 
   /* ═══════════════ Derived ═══════════════ */
+  const aiThinking =
+    (genStatus === 'generating' || genStatus === 'polling') && dialog.length > 0
+
   const projectLabel =
     view === 'workspace'
       ? selectedProject === 'new' || selectedProject == null
@@ -412,6 +443,8 @@ export function App() {
           progress={progress}
           dialog={dialog}
           onSendAnswer={handleSendAnswer}
+          aiThinking={aiThinking}
+          onEditBrief={handleEditBrief}
           generatedTasks={generatedTasks}
           deletedTaskIds={deletedTaskIds}
           onDeleteTask={handleTaskDelete}
@@ -422,6 +455,15 @@ export function App() {
           genProjectName={genProjectName}
         />
       )}
+
+      <HotkeyBar
+        view={view}
+        genStatus={genStatus}
+        hasDialog={dialog.length > 0}
+        hasGenerated={genStatus === 'complete' && generatedTasks.length > 0}
+        confirmed={confirmed}
+        inputCollapsed={inputCollapsed}
+      />
 
       <ToastContainer toasts={toasts} />
     </div>

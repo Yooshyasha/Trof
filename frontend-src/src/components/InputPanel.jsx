@@ -13,6 +13,8 @@ export function InputPanel({
   progress,
   dialog,
   onSendAnswer,
+  aiThinking,
+  onEditBrief,
 }) {
   const textareaRef = useRef(null)
 
@@ -30,6 +32,7 @@ export function InputPanel({
   const isQuestion   = genStatus === 'question'
   const isComplete   = genStatus === 'complete'
   const isBusy       = isGenerating || isQuestion
+  const hasDialog    = dialog.length > 0
 
   function handleKeyDown(e) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -90,8 +93,13 @@ export function InputPanel({
 
         {/* Body: textarea OR dialog */}
         <div className="input-panel__body">
-          {dialog.length > 0 ? (
-            <AiDialog dialog={dialog} onSend={onSendAnswer} canSend={isQuestion} />
+          {hasDialog ? (
+            <AiDialog
+              dialog={dialog}
+              onSend={onSendAnswer}
+              canSend={isQuestion}
+              thinking={aiThinking}
+            />
           ) : (
             <>
               <div className="input-panel__label">
@@ -110,16 +118,7 @@ export function InputPanel({
                 onKeyDown={handleKeyDown}
                 disabled={isGenerating}
               />
-              <span
-                style={{
-                  fontSize: 11,
-                  fontFamily: 'var(--font-mono)',
-                  color: 'var(--text-dim)',
-                  marginTop: -6,
-                }}
-              >
-                ctrl+enter to generate
-              </span>
+              <span className="input-panel__hint">ctrl+enter to generate</span>
             </>
           )}
         </div>
@@ -148,9 +147,7 @@ export function InputPanel({
             )}
             {isComplete && (
               <div className="status-row">
-                <span style={{ color: 'var(--ok)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-                  ✓ generation complete
-                </span>
+                <span className="input-panel__complete">✓ generation complete</span>
               </div>
             )}
           </div>
@@ -158,19 +155,25 @@ export function InputPanel({
 
         {/* Footer actions */}
         <div className="input-panel__footer">
-          <button
-            className="btn btn--primary"
-            onClick={onGenerate}
-            disabled={isBusy || !inputText.trim()}
-          >
-            {isGenerating
-              ? '⟳ generating...'
-              : isQuestion
-              ? '⟳ waiting...'
-              : isComplete
-              ? 'regenerate'
-              : 'generate'}
-          </button>
+          {hasDialog && !isBusy ? (
+            <button className="btn btn--ghost" onClick={onEditBrief}>
+              ↻ изменить бриф
+            </button>
+          ) : (
+            <button
+              className="btn btn--primary"
+              onClick={onGenerate}
+              disabled={isBusy || !inputText.trim()}
+            >
+              {isGenerating
+                ? '⟳ generating...'
+                : isQuestion
+                ? '⟳ waiting...'
+                : isComplete
+                ? 'regenerate'
+                : 'generate'}
+            </button>
+          )}
         </div>
       </div>
     </div>

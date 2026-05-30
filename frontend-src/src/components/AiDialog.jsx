@@ -1,8 +1,24 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkBreaks from 'remark-breaks'
 
-export function AiDialog({ dialog, onSend, canSend }) {
+const MD_PLUGINS = [remarkGfm, remarkBreaks]
+const MD_COMPONENTS = {
+  a: ({ node, ...props }) => (
+    <a {...props} target="_blank" rel="noopener noreferrer" />
+  ),
+}
+
+function Markdown({ children }) {
+  return (
+    <ReactMarkdown remarkPlugins={MD_PLUGINS} components={MD_COMPONENTS}>
+      {children}
+    </ReactMarkdown>
+  )
+}
+
+export function AiDialog({ dialog, onSend, canSend, thinking }) {
   const [answerText, setAnswerText] = useState('')
   const historyRef  = useRef(null)
   const textareaRef = useRef(null)
@@ -10,7 +26,7 @@ export function AiDialog({ dialog, onSend, canSend }) {
   useEffect(() => {
     const el = historyRef.current
     if (el) el.scrollTop = el.scrollHeight
-  }, [dialog])
+  }, [dialog, thinking])
 
   useEffect(() => {
     if (canSend) textareaRef.current?.focus()
@@ -46,23 +62,21 @@ export function AiDialog({ dialog, onSend, canSend }) {
               {msg.role === 'ai' ? 'AI' : 'you'}
             </span>
             <div className="ai-dialog__bubble-text">
-              {msg.role === 'ai' ? (
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    a: ({ node, ...props }) => (
-                      <a {...props} target="_blank" rel="noopener noreferrer" />
-                    ),
-                  }}
-                >
-                  {msg.text}
-                </ReactMarkdown>
-              ) : (
-                msg.text
-              )}
+              <Markdown>{msg.text}</Markdown>
             </div>
           </div>
         ))}
+
+        {thinking && (
+          <div className="ai-dialog__bubble ai-dialog__bubble--ai">
+            <span className="ai-dialog__bubble-label">AI</span>
+            <div className="ai-dialog__bubble-text ai-dialog__bubble-text--thinking">
+              <span className="ai-dialog__typing" aria-label="AI is thinking">
+                <span /><span /><span />
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {canSend && (

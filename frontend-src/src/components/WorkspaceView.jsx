@@ -13,6 +13,8 @@ export function WorkspaceView({
   progress,
   dialog,
   onSendAnswer,
+  aiThinking,
+  onEditBrief,
   generatedTasks,
   deletedTaskIds,
   onDeleteTask,
@@ -41,6 +43,8 @@ export function WorkspaceView({
         progress={progress}
         dialog={dialog}
         onSendAnswer={onSendAnswer}
+        aiThinking={aiThinking}
+        onEditBrief={onEditBrief}
       />
 
       <TasksPanel
