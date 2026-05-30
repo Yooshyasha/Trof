@@ -24,7 +24,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation(platform("org.springframework.cloud:spring-cloud-dependencies:2024.0.3"))
+    implementation(platform("org.springframework.cloud:spring-cloud-dependencies:2025.1.1"))
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("tools.jackson.module:jackson-module-kotlin:3.1.0")
