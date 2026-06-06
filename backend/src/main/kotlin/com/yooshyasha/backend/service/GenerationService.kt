@@ -34,11 +34,21 @@ class GenerationService(
     fun generate(data: RequestStartGenerate): ResponsePostGenerate {
         var projectTasks: List<VikunjaTaskDTO> = listOf()
         val generateData = if (data.projectId == null) {
-            GenerateRequest(text = data.text, vikunjaProject = null)
+            GenerateRequest(
+                text = data.text,
+                vikunjaProject = null,
+                language = data.language,
+                taskDepth = data.taskDepth,
+            )
         } else {
             val project = vikunjaService.getProject(data.projectId)
             projectTasks = project.tasks
-            GenerateRequest(text = data.text, vikunjaProject = project)
+            GenerateRequest(
+                text = data.text,
+                vikunjaProject = project,
+                language = data.language,
+                taskDepth = data.taskDepth,
+            )
         }
 
         val response = try {

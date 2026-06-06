@@ -33,6 +33,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation(project(":shared"))
 
+    // Source: https://mvnrepository.com/artifact/org.meeuw.i18n/i18n-iso-639
+    implementation("org.meeuw.i18n:i18n-iso-639:4.4")
+
     implementation("io.ktor:ktor-client-okhttp-jvm:$ktorVersion")
 
     implementation("io.github.openfeign:feign-okhttp")
