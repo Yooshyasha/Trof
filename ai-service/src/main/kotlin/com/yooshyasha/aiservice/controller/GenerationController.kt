@@ -15,7 +15,7 @@ class GenerationController(
 ) {
     @PostMapping
     fun generate(@RequestBody data: GenerateRequest): ResponsePostGenerate {
-        return generationService.generate(data.text, data.vikunjaProject)
+        return generationService.generate(data.text, data.vikunjaProject, data.language, data.taskDepth)
     }
 
     @GetMapping("/{taskId}")

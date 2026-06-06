@@ -8,12 +8,14 @@ import dto.GeneratedTasksResponse
 import dto.ResponseGetTaskStatus
 import dto.ResponsePostGenerate
 import dto.project.VikunjaProjectDTO
+import enum.TaskDepth
 import enum.TaskStatus
 import exceptions.ApiException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import org.meeuw.i18n.languages.ISO_639_1_Code
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
@@ -36,7 +38,12 @@ class GenerationService(
         return result
     }
 
-    fun generate(text: String, vikunjaProject: VikunjaProjectDTO?): ResponsePostGenerate {
+    fun generate(
+        text: String,
+        vikunjaProject: VikunjaProjectDTO?,
+        language: ISO_639_1_Code,
+        taskDepth: TaskDepth
+    ): ResponsePostGenerate {
         var llmRequest = text
         vikunjaProject?.let { llmRequest += vikunjaTasksToString(vikunjaProject) }
 
@@ -44,7 +51,9 @@ class GenerationService(
         val task = aiTaskGenerationService.generation(
             llmRequest,
             isEdit = vikunjaProject != null,
-            taskId,
+            futureId = taskId,
+            language = language,
+            taskDepth = taskDepth
         )
         futureStorage.save(taskId, task)
 

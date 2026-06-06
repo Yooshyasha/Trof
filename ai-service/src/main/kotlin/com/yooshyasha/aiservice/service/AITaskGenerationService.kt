@@ -2,10 +2,12 @@ package com.yooshyasha.aiservice.service
 
 import com.yooshyasha.aiservice.ai.TaskManagerAgentProvider
 import dto.GeneratedTasksResponse
+import enum.TaskDepth
 import kotlinx.coroutines.*
+import org.meeuw.i18n.languages.ISO_639_1_Code
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class AITaskGenerationService(
@@ -16,7 +18,14 @@ class AITaskGenerationService(
         logger.error("Exception process ai agent:", e)
     })
 
-    fun generation(text: String, isEdit: Boolean, futureId: UUID): Deferred<GeneratedTasksResponse> = scope.async {
+    fun generation(
+        text: String,
+        isEdit: Boolean,
+        futureId: UUID,
+        language: ISO_639_1_Code,
+        taskDepth: TaskDepth
+    ): Deferred<GeneratedTasksResponse> = scope.async {
+        val inputText = "$text\n\nUSER LANGUAGE: "
         val agent = if (!isEdit) {
             taskManagerAgentProvider.provideAgent(futureId)
         } else {
