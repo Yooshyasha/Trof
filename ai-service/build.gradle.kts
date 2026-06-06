@@ -49,6 +49,8 @@ dependencies {
     implementation("ai.koog:koog-spring-boot-starter:$koogStarterVersion")
     implementation("io.ktor:ktor-client-okhttp-jvm:$ktorVersion")
 
+    // Source: https://mvnrepository.com/artifact/org.meeuw.i18n/i18n-iso-639
+    implementation("org.meeuw.i18n:i18n-iso-639:4.4")
 
     implementation(project(":shared"))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
