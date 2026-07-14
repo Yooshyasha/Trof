@@ -8,7 +8,9 @@ import ai.koog.prompt.executor.clients.mistralai.MistralAIModels
 import ai.koog.prompt.executor.clients.openai.OpenAIModels
 import ai.koog.prompt.executor.clients.openrouter.OpenRouterModels
 import ai.koog.prompt.executor.llms.MultiLLMPromptExecutor
+import ai.koog.prompt.executor.ollama.client.OllamaClient
 import ai.koog.prompt.executor.ollama.client.OllamaModels
+import ai.koog.prompt.executor.ollama.client.toLLModel
 import ai.koog.prompt.llm.LLModel
 import kotlinx.coroutines.withTimeoutOrNull
 import org.springframework.beans.factory.annotation.Qualifier
@@ -21,6 +23,7 @@ import kotlin.time.Duration.Companion.seconds
 class ModelResolver(
     @Qualifier("aiExecutor") private val aiExecutor: MultiLLMPromptExecutor,
     @Value($$"${ai.model.id}") private val aiModelId: String,
+    private val ollamaClient: OllamaClient? = null,
 ) {
     private val cached = AtomicReference<LLModel?>(null)
 
@@ -37,6 +40,7 @@ class ModelResolver(
         val model = staticModels.firstOrNull { it.id == aiModelId }
             ?: withTimeoutOrNull(10.seconds) {
                 aiExecutor.models().firstOrNull { it.id == aiModelId }
+                    ?: ollamaClient?.getModelOrNull(aiModelId)?.toLLModel()
             }
             ?: throw IllegalStateException(
                 "Model '$aiModelId' not found (static + remote, или таймаут)"
