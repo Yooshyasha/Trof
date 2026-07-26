@@ -39,7 +39,7 @@ class TaskManagerAgentProvider(
                 tools = ToolRegistry {
                     tools(userInputToolSetFactory.UserInputToolSet(futureId))
                 }.tools,
-                assistantResponseRepeatMax = 12,
+                assistantResponseRepeatMax = 10,
             ) { userInput ->
                 "Определи, достаточно ли контекста для определения задач. Запроси уточнения у пользователя с " +
                         "помощью инструмента по необходимости (если ты не вызовешь инструмент, пользователь не увидит сообщение). " +
@@ -84,7 +84,10 @@ class TaskManagerAgentProvider(
             })
 
             edge(nodeVerify forwardTo nodeGenerateTasks onCondition {
+                val iterations = stateManager.withStateLock { state -> state.iterations }
+
                 it.status == VerifyStatus.FAIL
+                        && config.maxAgentIterations - iterations >= RETRY_COST
             } transformed {
                 """
                     MODE: GENERATE
@@ -92,9 +95,7 @@ class TaskManagerAgentProvider(
                     ${it.refinementInstruction}
                 """.trimIndent()
             })
-            edge(nodeVerify forwardTo nodeFinish onCondition {
-                it.status == VerifyStatus.OK
-            } transformed {
+            edge(nodeVerify forwardTo nodeFinish transformed {
                 storage.get(generatedTasksKey)!!
             })
         }
@@ -107,7 +108,7 @@ class TaskManagerAgentProvider(
                     system(systemPrompt)
                 },
                 model = modelResolver.resolve(),
-                maxAgentIterations = 32,
+                maxAgentIterations = 14,
             ),
             toolRegistry = ToolRegistry {
                 tools(userInputToolSetFactory.UserInputToolSet(futureId))
@@ -116,6 +117,11 @@ class TaskManagerAgentProvider(
     }
 
     override suspend fun provideAgent(futureId: UUID) = provideAgent(defaultSystemPrompt, futureId)
+
+    private companion object {
+        const val RETRY_COST = 3
+    }
+
     suspend fun provideAgentWithEditMark(futureId: UUID) =
         provideAgent(defaultSystemPrompt + editMarkSystemPrompt, futureId)
 }

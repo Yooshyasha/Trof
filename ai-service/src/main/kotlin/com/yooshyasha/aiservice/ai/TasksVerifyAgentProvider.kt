@@ -41,7 +41,7 @@ class TasksVerifyAgentProvider(
                     system(systemPrompt)
                 },
                 model = modelResolver.resolve(),
-                maxAgentIterations = 32,
+                maxAgentIterations = 16,
             ),
             toolRegistry = ToolRegistry.EMPTY,
         )
