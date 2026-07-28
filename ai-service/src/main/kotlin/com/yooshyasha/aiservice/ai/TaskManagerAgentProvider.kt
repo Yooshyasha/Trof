@@ -108,7 +108,7 @@ class TaskManagerAgentProvider(
                     system(systemPrompt)
                 },
                 model = modelResolver.resolve(),
-                maxAgentIterations = 14,
+                maxAgentIterations = 12 + CLARIFICATION_COST * 5 + RETRY_COST * 2,
             ),
             toolRegistry = ToolRegistry {
                 tools(userInputToolSetFactory.UserInputToolSet(futureId))
@@ -119,7 +119,9 @@ class TaskManagerAgentProvider(
     override suspend fun provideAgent(futureId: UUID) = provideAgent(defaultSystemPrompt, futureId)
 
     private companion object {
-        const val RETRY_COST = 3
+        const val RETRY_COST = 3 // перепроверка
+
+        const val CLARIFICATION_COST = 3 // вопросы и тд
     }
 
     suspend fun provideAgentWithEditMark(futureId: UUID) =
